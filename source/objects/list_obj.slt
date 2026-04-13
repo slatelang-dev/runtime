@@ -1,4 +1,4 @@
-module list;
+module list_obj;
 
 use header;
 

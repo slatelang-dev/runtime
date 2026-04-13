@@ -1,4 +1,4 @@
-module string;
+module string_obj;
 
 use header;
 
