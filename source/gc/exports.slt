@@ -1,0 +1,4 @@
+module gc;
+
+use alloc;
+use collector;

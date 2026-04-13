@@ -1,0 +1,83 @@
+module list;
+
+use header;
+
+# Heap-allocated list — only used for mutable lists
+# Immutable lists are stack allocated where possible
+# elements: the actual list contents
+# len: number of elements currently in the list
+# cap: allocated capacity
+
+struct ListObj {
+    ObjHeader header;
+    list(string) elements;
+    int len;
+    int cap;
+}
+
+ListObj make_list() {
+    return ListObj(
+        header: make_header(TypeTag.ListObj, 0),
+        elements: empty,
+        len: 0,
+        cap: 0
+    );
+}
+
+ListObj list_push(ListObj l, string element) {
+    list(string) new_elements = l.elements.add(element);
+    int new_len = l.len + 1;
+    int new_cap = new_len * 2;
+    return ListObj(
+        header: make_header(TypeTag.ListObj, new_cap),
+        elements: new_elements,
+        len: new_len,
+        cap: new_cap
+    );
+}
+
+ListObj list_pop(ListObj l) {
+    if l.len == 0 {
+        return l;
+    }
+    mutable list(string) new_elements = empty;
+    mutable int i = 0;
+    while i < l.len - 1 {
+        new_elements = new_elements.add(l.elements.get(i));
+        i += 1;
+    }
+    int new_len = l.len - 1;
+    return ListObj(
+        header: make_header(TypeTag.ListObj, new_len),
+        elements: new_elements,
+        len: new_len,
+        cap: l.cap
+    );
+}
+
+string list_get(ListObj l, int index) {
+    return l.elements.get(index);
+}
+
+ListObj list_set(ListObj l, int index, string element) {
+    mutable list(string) new_elements = empty;
+    mutable int i = 0;
+    while i < l.len {
+        if i == index {
+            new_elements = new_elements.add(element);
+        } else {
+            new_elements = new_elements.add(l.elements.get(i));
+        }
+        i += 1;
+    }
+    return ListObj(
+        header: make_header(TypeTag.ListObj, l.cap),
+        elements: new_elements,
+        len: l.len,
+        cap: l.cap
+    );
+}
+
+bool list_empty(ListObj l) {
+    return l.len == 0;
+}

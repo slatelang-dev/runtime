@@ -1,0 +1,57 @@
+module string;
+
+use header;
+
+# Heap-allocated string — only used for mutable strings
+# Immutable strings are static data, no header needed
+# data: the actual UTF-8 bytes as a string
+# len: number of characters
+# cap: allocated capacity in bytes
+
+struct StringObj {
+    ObjHeader header;
+    string data;
+    int len;
+    int cap;
+}
+
+StringObj make_string(string data) {
+    int length = data.len();
+    return StringObj(
+        header: make_header(TypeTag.StringObj, length),
+        data: data,
+        len: length,
+        cap: length
+    );
+}
+
+StringObj string_grow(StringObj s, string extra) {
+    string new_data = s.data + extra;
+    int new_len = new_data.len();
+    int new_cap = new_len * 2;
+    return StringObj(
+        header: make_header(TypeTag.StringObj, new_cap),
+        data: new_data,
+        len: new_len,
+        cap: new_cap
+    );
+}
+
+StringObj string_slice(StringObj s, int start, int end) {
+    string sliced = s.data.slice(start, end);
+    int new_len = sliced.len();
+    return StringObj(
+        header: make_header(TypeTag.StringObj, new_len),
+        data: sliced,
+        len: new_len,
+        cap: new_len
+    );
+}
+
+bool string_eq(StringObj a, StringObj b) {
+    return a.data == b.data;
+}
+
+string string_get(StringObj s) {
+    return s.data;
+}

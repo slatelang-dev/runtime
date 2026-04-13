@@ -1,0 +1,75 @@
+module collector;
+
+use objects;
+use alloc;
+
+# Mark phase — mark all reachable objects starting from roots
+
+GcState mark_all(GcState gc, list(string) live_ids) {
+    mutable GcState state = gc;
+    mutable int i = 0;
+    while i < live_ids.len() {
+        string id = live_ids.get(i);
+        if state.roots.contains(id) == false {
+            state = gc_alloc(state, id);
+        }
+        i += 1;
+    }
+    return state;
+}
+
+# Sweep phase — remove all unmarked objects from roots
+
+GcState sweep(GcState gc, list(string) marked_ids) {
+    mutable list(string) surviving = empty;
+    mutable int collected = 0;
+    mutable int i = 0;
+    while i < gc.roots.len() {
+        string id = gc.roots.get(i);
+        mutable bool is_marked = false;
+        mutable int j = 0;
+        while j < marked_ids.len() {
+            if marked_ids.get(j) == id {
+                is_marked = true;
+            }
+            j += 1;
+        }
+        if is_marked {
+            surviving = surviving.add(id);
+        } else {
+            collected = collected + 1;
+        }
+        i += 1;
+    }
+    return GcState(
+        roots: surviving,
+        alloc_count: surviving.len(),
+        collect_threshold: gc.collect_threshold
+    );
+}
+
+# Full collection cycle — mark then sweep
+
+GcState gc_collect(GcState gc, list(string) live_ids) {
+    if gc_should_collect(gc) == false {
+        return gc;
+    }
+    GcState marked = mark_all(gc, live_ids);
+    GcState swept = sweep(marked, live_ids);
+    return gc_reset_count(swept);
+}
+
+# Adjust collection threshold — called after collection
+# If heap is still large after sweep, grow the threshold
+
+GcState gc_tune(GcState gc) {
+    if gc.alloc_count > gc.collect_threshold / 2 {
+        int new_threshold = gc.collect_threshold * 2;
+        return GcState(
+            roots: gc.roots,
+            alloc_count: gc.alloc_count,
+            collect_threshold: new_threshold
+        );
+    }
+    return gc;
+}
