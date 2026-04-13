@@ -1,0 +1,6 @@
+# Luma build output
+builds/
+
+# OS
+.DS_Store
+Thumbs.db

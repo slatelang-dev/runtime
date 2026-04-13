@@ -1,0 +1,5 @@
+[project]
+name = "runtime"
+version = "0.1.0"
+description = ""
+entry = "source/main.slt"
