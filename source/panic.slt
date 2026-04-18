@@ -1,34 +1,28 @@
 module panic;
 
 # Panic — hard abort, no unwinding
-# Called for truly unrecoverable errors only:
-#   - out of memory
-#   - index out of bounds
-#   - division by zero
-#   - stack overflow
-# Everything else uses result(T)
+# Calls puts directly via primitive
 
 void panic(string message) {
-    print("panic: " + message);
-    # TODO: lower to llvm.trap in 0.3.0
+    puts(message);
 }
 
 void panic_oom() {
-    panic("out of memory");
+    panic("panic: out of memory");
 }
 
-void panic_bounds(int index, int len) {
-    panic("index out of bounds: index " + string(index) + " len " + string(len));
+void panic_bounds(int index, int length) {
+    panic("panic: index out of bounds");
 }
 
 void panic_divide_zero() {
-    panic("division by zero");
+    panic("panic: division by zero");
 }
 
 void panic_stack_overflow() {
-    panic("stack overflow");
+    panic("panic: stack overflow");
 }
 
 void panic_unwrap_none() {
-    panic("attempted to unwrap none");
+    panic("panic: attempted to unwrap none");
 }

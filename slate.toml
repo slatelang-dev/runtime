@@ -1,5 +1,6 @@
 [project]
 name = "runtime"
 version = "0.1.0"
-description = ""
-entry = "source/main.slt"
+description = "Slate runtime"
+entry = "source/lib.slt"
+bare = true
