@@ -1,66 +1,9 @@
 module alloc;
 
-use objects;
-
-# GC root list — tracks all live mutable heap objects
-# During mark phase the collector walks this list as its root set
-
-struct GcState {
-    list(string) roots;
-    int alloc_count;
-    int collect_threshold;
+ptr gc_alloc(int size) {
+    return alloc(size);
 }
 
-GcState new_gc() {
-    return GcState(
-        roots: empty,
-        alloc_count: 0,
-        collect_threshold: 100
-    );
-}
-
-# Register a new object with the GC
-
-GcState gc_alloc(GcState gc, string obj_id) {
-    mutable int new_count = gc.alloc_count + 1;
-    list(string) new_roots = gc.roots.add(obj_id);
-    return GcState(
-        roots: new_roots,
-        alloc_count: new_count,
-        collect_threshold: gc.collect_threshold
-    );
-}
-
-# Check if collection should be triggered
-
-bool gc_should_collect(GcState gc) {
-    return gc.alloc_count >= gc.collect_threshold;
-}
-
-# Remove a root from the GC — called after sweep
-
-GcState gc_remove(GcState gc, string obj_id) {
-    mutable list(string) new_roots = empty;
-    mutable int i = 0;
-    while i < gc.roots.len() {
-        if gc.roots.get(i) != obj_id {
-            new_roots = new_roots.add(gc.roots.get(i));
-        }
-        i += 1;
-    }
-    return GcState(
-        roots: new_roots,
-        alloc_count: gc.alloc_count - 1,
-        collect_threshold: gc.collect_threshold
-    );
-}
-
-# Reset alloc count after a collection cycle
-
-GcState gc_reset_count(GcState gc) {
-    return GcState(
-        roots: gc.roots,
-        alloc_count: 0,
-        collect_threshold: gc.collect_threshold
-    );
+void gc_free(ptr p) {
+    free(p);
 }

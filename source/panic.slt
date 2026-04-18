@@ -1,10 +1,7 @@
 module panic;
 
-# Panic — hard abort, no unwinding
-# Calls puts directly via primitive
-
-void panic(string message) {
-    puts(message);
+void panic(string msg) {
+    puts(msg);
 }
 
 void panic_oom() {

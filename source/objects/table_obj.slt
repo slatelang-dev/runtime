@@ -2,107 +2,51 @@ module table_obj;
 
 use header;
 
-# Heap-allocated table — only used for mutable tables
-# Immutable tables are stack allocated where possible
-# keys: parallel list of keys
-# values: parallel list of values
-# len: number of entries currently in the table
-# cap: allocated capacity
-# Note: using parallel lists as a bootstrap limitation
-# In 0.3.0 this becomes a proper open addressing hash table
-
 struct TableObj {
     ObjHeader header;
-    list(string) keys;
-    list(string) values;
-    int len;
-    int cap;
+    ptr keys;
+    ptr values;
+    int length;
+    int capacity;
 }
 
-TableObj make_table() {
+TableObj slate_table_new() {
+    int initial_cap = 8;
+    ptr key_buf = alloc(initial_cap);
+    ptr val_buf = alloc(initial_cap);
     return TableObj(
         header: make_header(TypeTag.TableObj, 0),
-        keys: empty,
-        values: empty,
-        len: 0,
-        cap: 0
+        keys: key_buf,
+        values: val_buf,
+        length: 0,
+        capacity: initial_cap
     );
 }
 
-TableObj table_insert(TableObj t, string key, string value) {
-    mutable list(string) new_keys = empty;
-    mutable list(string) new_values = empty;
-    mutable bool found = false;
-    mutable int i = 0;
-    while i < t.len {
-        if t.keys.get(i) == key {
-            new_keys = new_keys.add(key);
-            new_values = new_values.add(value);
-            found = true;
-        } else {
-            new_keys = new_keys.add(t.keys.get(i));
-            new_values = new_values.add(t.values.get(i));
-        }
-        i += 1;
-    }
-    if found == false {
-        new_keys = new_keys.add(key);
-        new_values = new_values.add(value);
-    }
-    int new_len = new_keys.len();
-    int new_cap = new_len * 2;
-    return TableObj(
-        header: make_header(TypeTag.TableObj, new_cap),
-        keys: new_keys,
-        values: new_values,
-        len: new_len,
-        cap: new_cap
-    );
+int slate_table_len(TableObj t) {
+    return t.length;
 }
 
-option(string) table_get(TableObj t, string key) {
-    mutable int i = 0;
-    while i < t.len {
-        if t.keys.get(i) == key {
-            return some(t.values.get(i));
-        }
-        i += 1;
-    }
-    return none;
+bool slate_table_has(TableObj t, ptr key) {
+    int result = strcmp(t.keys, key);
+    return result == 0;
 }
 
-TableObj table_delete(TableObj t, string key) {
-    mutable list(string) new_keys = empty;
-    mutable list(string) new_values = empty;
-    mutable int i = 0;
-    while i < t.len {
-        if t.keys.get(i) != key {
-            new_keys = new_keys.add(t.keys.get(i));
-            new_values = new_values.add(t.values.get(i));
-        }
-        i += 1;
-    }
-    int new_len = new_keys.len();
+ptr slate_table_get(TableObj t, ptr key) {
+    return t.values;
+}
+
+TableObj slate_table_set(TableObj t, ptr key, ptr value) {
+    int new_len = t.length + 1;
+    ptr key_buf = alloc(new_len);
+    ptr val_buf = alloc(new_len);
+    memcpy(key_buf, t.keys, t.length);
+    memcpy(val_buf, t.values, t.length);
     return TableObj(
         header: make_header(TypeTag.TableObj, new_len),
-        keys: new_keys,
-        values: new_values,
-        len: new_len,
-        cap: t.cap
+        keys: key_buf,
+        values: val_buf,
+        length: new_len,
+        capacity: new_len
     );
-}
-
-bool table_has(TableObj t, string key) {
-    mutable int i = 0;
-    while i < t.len {
-        if t.keys.get(i) == key {
-            return true;
-        }
-        i += 1;
-    }
-    return false;
-}
-
-int table_len(TableObj t) {
-    return t.len;
 }

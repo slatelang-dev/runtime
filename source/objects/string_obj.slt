@@ -2,56 +2,48 @@ module string_obj;
 
 use header;
 
-# Heap-allocated string — only used for mutable strings
-# Immutable strings are static data, no header needed
-# data: the actual UTF-8 bytes as a string
-# len: number of characters
-# cap: allocated capacity in bytes
-
 struct StringObj {
     ObjHeader header;
-    string data;
-    int len;
-    int cap;
+    ptr data;
+    int length;
+    int capacity;
 }
 
-StringObj make_string(string data) {
-    int length = data.len();
+StringObj slate_string_new(ptr chars, int len) {
+    ptr buf = alloc(len);
+    memcpy(buf, chars, len);
     return StringObj(
-        header: make_header(TypeTag.StringObj, length),
-        data: data,
-        len: length,
-        cap: length
+        header: make_header(TypeTag.StringObj, len),
+        data: buf,
+        length: len,
+        capacity: len
     );
 }
 
-StringObj string_grow(StringObj s, string extra) {
-    string new_data = s.data + extra;
-    int new_len = new_data.len();
-    int new_cap = new_len * 2;
-    return StringObj(
-        header: make_header(TypeTag.StringObj, new_cap),
-        data: new_data,
-        len: new_len,
-        cap: new_cap
-    );
+int slate_string_len(StringObj s) {
+    return s.length;
 }
 
-StringObj string_slice(StringObj s, int start, int end) {
-    string sliced = s.data.slice(start, end);
-    int new_len = sliced.len();
+ptr slate_string_data(StringObj s) {
+    return s.data;
+}
+
+bool slate_string_eq(StringObj a, StringObj b) {
+    if a.length != b.length {
+        return false;
+    }
+    int result = strcmp(a.data, b.data);
+    return result == 0;
+}
+
+StringObj slate_string_concat(StringObj a, StringObj b) {
+    int new_len = a.length + b.length;
+    ptr buf = alloc(new_len);
+    memcpy(buf, a.data, a.length);
     return StringObj(
         header: make_header(TypeTag.StringObj, new_len),
-        data: sliced,
-        len: new_len,
-        cap: new_len
+        data: buf,
+        length: new_len,
+        capacity: new_len
     );
-}
-
-bool string_eq(StringObj a, StringObj b) {
-    return a.data == b.data;
-}
-
-string string_get(StringObj s) {
-    return s.data;
 }

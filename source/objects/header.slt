@@ -1,17 +1,10 @@
 module header;
 
-# Type tags — identify what kind of object is on the GC heap
-
 enum TypeTag {
     StringObj,
     ListObj,
     TableObj,
 }
-
-# ObjHeader — every GC-tracked heap object starts with this
-# marked: used by the collector during mark phase
-# tag: identifies the object type for traversal
-# size: total size of the object in bytes
 
 struct ObjHeader {
     bool marked;

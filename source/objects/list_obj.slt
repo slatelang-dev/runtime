@@ -2,82 +2,46 @@ module list_obj;
 
 use header;
 
-# Heap-allocated list — only used for mutable lists
-# Immutable lists are stack allocated where possible
-# elements: the actual list contents
-# len: number of elements currently in the list
-# cap: allocated capacity
-
 struct ListObj {
     ObjHeader header;
-    list(string) elements;
-    int len;
-    int cap;
+    ptr data;
+    int length;
+    int capacity;
 }
 
-ListObj make_list() {
+ListObj slate_list_new() {
+    int initial_cap = 8;
+    ptr buf = alloc(initial_cap);
     return ListObj(
         header: make_header(TypeTag.ListObj, 0),
-        elements: empty,
-        len: 0,
-        cap: 0
+        data: buf,
+        length: 0,
+        capacity: initial_cap
     );
 }
 
-ListObj list_push(ListObj l, string element) {
-    list(string) new_elements = l.elements.add(element);
-    int new_len = l.len + 1;
-    int new_cap = new_len * 2;
-    return ListObj(
-        header: make_header(TypeTag.ListObj, new_cap),
-        elements: new_elements,
-        len: new_len,
-        cap: new_cap
-    );
+int slate_list_len(ListObj l) {
+    return l.length;
 }
 
-ListObj list_pop(ListObj l) {
-    if l.len == 0 {
-        return l;
+ptr slate_list_get(ListObj l, int index) {
+    if index < 0 {
+        panic_bounds(index, l.length);
     }
-    mutable list(string) new_elements = empty;
-    mutable int i = 0;
-    while i < l.len - 1 {
-        new_elements = new_elements.add(l.elements.get(i));
-        i += 1;
+    if index >= l.length {
+        panic_bounds(index, l.length);
     }
-    int new_len = l.len - 1;
+    return l.data;
+}
+
+ListObj slate_list_add(ListObj l, ptr value) {
+    int new_len = l.length + 1;
+    ptr buf = alloc(new_len);
+    memcpy(buf, l.data, l.length);
     return ListObj(
         header: make_header(TypeTag.ListObj, new_len),
-        elements: new_elements,
-        len: new_len,
-        cap: l.cap
+        data: buf,
+        length: new_len,
+        capacity: new_len
     );
-}
-
-string list_get(ListObj l, int index) {
-    return l.elements.get(index);
-}
-
-ListObj list_set(ListObj l, int index, string element) {
-    mutable list(string) new_elements = empty;
-    mutable int i = 0;
-    while i < l.len {
-        if i == index {
-            new_elements = new_elements.add(element);
-        } else {
-            new_elements = new_elements.add(l.elements.get(i));
-        }
-        i += 1;
-    }
-    return ListObj(
-        header: make_header(TypeTag.ListObj, l.cap),
-        elements: new_elements,
-        len: l.len,
-        cap: l.cap
-    );
-}
-
-bool list_empty(ListObj l) {
-    return l.len == 0;
 }
