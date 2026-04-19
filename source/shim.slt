@@ -54,3 +54,40 @@ ptr slate_args(ptr handle) {
     ptr buf = alloc(8);
     return buf;
 }
+
+ptr bold(ptr s) { return s; }
+ptr bold_red(ptr s) { return s; }
+ptr bold_green(ptr s) { return s; }
+ptr bold_yellow(ptr s) { return s; }
+ptr bold_blue(ptr s) { return s; }
+ptr bold_slate(ptr s) { return s; }
+ptr red(ptr s) { return s; }
+ptr green(ptr s) { return s; }
+ptr blue(ptr s) { return s; }
+ptr yellow(ptr s) { return s; }
+ptr orange(ptr s) { return s; }
+ptr purple(ptr s) { return s; }
+ptr slate(ptr s) { return s; }
+ptr gray(ptr s) { return s; }
+ptr white(ptr s) { return s; }
+ptr dim(ptr s) { return s; }
+ptr italic(ptr s) { return s; }
+ptr underline(ptr s) { return s; }
+
+ptr slate_bold(ptr s) { return bold(s); }
+ptr slate_bold_red(ptr s) { return bold_red(s); }
+ptr slate_bold_green(ptr s) { return bold_green(s); }
+ptr slate_bold_yellow(ptr s) { return bold_yellow(s); }
+ptr slate_bold_blue(ptr s) { return bold_blue(s); }
+ptr slate_bold_slate(ptr s) { return bold_slate(s); }
+ptr slate_red(ptr s) { return red(s); }
+ptr slate_green(ptr s) { return green(s); }
+ptr slate_blue(ptr s) { return blue(s); }
+ptr slate_yellow(ptr s) { return yellow(s); }
+ptr slate_orange(ptr s) { return orange(s); }
+ptr slate_purple(ptr s) { return purple(s); }
+ptr slate_gray(ptr s) { return gray(s); }
+ptr slate_white(ptr s) { return white(s); }
+ptr slate_dim(ptr s) { return dim(s); }
+ptr slate_italic(ptr s) { return italic(s); }
+ptr slate_underline(ptr s) { return underline(s); }
