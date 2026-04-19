@@ -1,59 +1,47 @@
 module shim;
 
-# Temporary shim — provides missing runtime symbols until the full runtime compiles
+# Temporary shim — provides missing runtime symbols
 # DELETE when runtime/ is fully walker-compilable
-
-# String layout: [i64 length][bytes...]
-# List layout: [i64 length][i64 capacity][ptr items...]
 
 ptr slate_alloc(int size) {
     return alloc(size);
 }
 
-# print — wraps puts
-void print(ptr s) {
+void slate_print(ptr s) {
     puts(s);
 }
 
-# len — reads first i64 from list or string header
-int len(ptr p) {
+int slate_len(ptr p) {
     return strlen(p);
 }
 
-# get — returns pointer at index from list
-ptr get(ptr p, int index) {
+ptr slate_get(ptr p, int index) {
     return p;
 }
 
-# add — allocates new list with element appended
-ptr add(ptr p, ptr val) {
+ptr slate_add(ptr p, ptr val) {
     return p;
 }
 
-# has — stub, always false for now
-bool has(ptr p, ptr key) {
+bool slate_has(ptr p, ptr key) {
     return false;
 }
 
-# set — stub, returns same ptr
-ptr set(ptr p, ptr key, ptr val) {
+ptr slate_set(ptr p, ptr key, ptr val) {
     return p;
 }
 
-# string — converts int to string representation
-ptr string(int n) {
+ptr slate_string(int n) {
     ptr buf = alloc(32);
     return buf;
 }
 
-# input — returns opaque input handle
-ptr input() {
+ptr slate_input() {
     ptr buf = alloc(8);
     return buf;
 }
 
-# args — returns list of command line args from input handle
-ptr args(ptr handle) {
+ptr slate_args(ptr handle) {
     ptr buf = alloc(8);
     return buf;
 }
