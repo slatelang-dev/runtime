@@ -45,15 +45,6 @@ ptr slate_string_concat(ptr a, ptr b) {
     return buf;
 }
 
-ptr __string_concat(ptr a, ptr b) {
-    int len_a = strlen(a);
-    int len_b = strlen(b);
-    int total = len_a + len_b + 1;
-    ptr buf = alloc(total);
-    memcpy(buf, a, len_a);
-    return buf;
-}
-
 ptr slate_input() {
     ptr buf = alloc(8);
     return buf;
