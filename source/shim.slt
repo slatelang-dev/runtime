@@ -55,24 +55,6 @@ ptr slate_args(ptr handle) {
     return buf;
 }
 
-void cmd_run(ptr args) {}
-void cmd_check(ptr args) {}
-void cmd_build(ptr args) {}
-void cmd_test(ptr args) {}
-void cmd_debug(ptr args) {}
-void cmd_tidy(ptr args) {}
-void cmd_new(ptr args) {}
-void cmd_init(ptr args) {}
-void cmd_create(ptr args) {}
-void cmd_add(ptr args) {}
-void cmd_remove(ptr args) {}
-void cmd_sync(ptr args) {}
-void cmd_update(ptr args) {}
-void cmd_docs(ptr args) {}
-void cmd_info(ptr args) {}
-void cmd_help(ptr args) {}
-void cmd_clean(ptr args) {}
-
 ptr bold(ptr s) { return s; }
 ptr bold_red(ptr s) { return s; }
 ptr bold_green(ptr s) { return s; }
