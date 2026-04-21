@@ -37,11 +37,10 @@ ptr slate_string(int n) {
 }
 
 ptr slate_string_concat(ptr a, ptr b) {
-    int len_a = strlen(a);
-    int len_b = strlen(b);
-    int total = len_a + len_b + 1;
-    ptr buf = alloc(total);
-    memcpy(buf, a, len_a);
+    int la = strlen(a);
+    int lb = strlen(b);
+    ptr buf = alloc(la);
+    memcpy(buf, a, la);
     return buf;
 }
 
