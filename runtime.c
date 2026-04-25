@@ -21,6 +21,14 @@ char* slate_string(int64_t n) {
     return buf;
 }
 
+int64_t slate_int(char* s) {
+    return (int64_t)atoll(s);
+}
+
+double slate_float(char* s) {
+    return atof(s);
+}
+
 // ─── Print ───────────────────────────────────────────────────────────────────
 
 void slate_print(char* s) {
