@@ -238,6 +238,15 @@ char* slate_split(char* s, char* delim) {
     return buf;
 }
 
+void* slate_or(void* option_val, void* default_val) {
+    if (option_val == NULL) return default_val;
+    return option_val;
+}
+
+int8_t slate_exists(void* option_val) {
+    return option_val != NULL ? 1 : 0;
+}
+
 // ─── Ink color functions (ANSI) ───────────────────────────────────────────────
 
 static char* ansi_wrap(const char* code, char* text) {
