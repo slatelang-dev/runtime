@@ -283,6 +283,63 @@ char* slate_home_fn() {
     return h;
 }
 
+char* file_handle(char* path) {
+    return path;
+}
+
+char* read_file_fn(char* path) {
+    FILE* f = fopen(path, "r");
+    if (!f) return "";
+    fseek(f, 0, SEEK_END);
+    long len = ftell(f);
+    rewind(f);
+    char* buf = malloc(len + 1);
+    fread(buf, 1, len, f);
+    buf[len] = '\0';
+    fclose(f);
+    return buf;
+}
+
+void write_file_fn(char* path, char* content) {
+    FILE* f = fopen(path, "w");
+    if (!f) return;
+    fputs(content, f);
+    fclose(f);
+}
+
+int8_t exists_file_fn(char* path) {
+    FILE* f = fopen(path, "r");
+    if (f) { fclose(f); return 1; }
+    return 0;
+}
+
+char* run_shell(char* cmd) {
+    char buf[4096];
+    snprintf(buf, sizeof(buf), "%s", cmd);
+    system(buf);
+    return "";
+}
+
+char* read_n_fn(int64_t n) {
+    char* buf = malloc(n + 1);
+    fread(buf, 1, n, stdin);
+    buf[n] = '\0';
+    return buf;
+}
+
+char* read_line_fn() {
+    char* buf = malloc(4096);
+    if (fgets(buf, 4096, stdin) == NULL) buf[0] = '\0';
+    int len = strlen(buf);
+    if (len > 0 && buf[len-1] == '\n') buf[len-1] = '\0';
+    return buf;
+}
+
+void write_stdout_fn(char* s) {
+    fputs(s, stdout);
+    fflush(stdout);
+}
+
 // ─── Ink color functions (ANSI) ───────────────────────────────────────────────
 
 static char* ansi_wrap(const char* code, char* text) {
