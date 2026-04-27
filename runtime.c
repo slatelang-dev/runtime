@@ -349,3 +349,11 @@ static char* ansi_wrap(const char* code, char* text) {
     sprintf(buf, "%s%s\033[0m", code, text);
     return buf;
 }
+
+// Builtin functions matching IR call names
+char* file(char* path) { return path; }
+char* home() { char* h = getenv("HOME"); return h ? h : ""; }
+void run_fn(char* cmd) { system(cmd); }
+char* read_n(int64_t n) { char* b = malloc(n+1); fread(b,1,n,stdin); b[n]=0; return b; }
+char* read_line() { char* b = malloc(4096); if(!fgets(b,4096,stdin))b[0]=0; int l=strlen(b); if(l>0&&b[l-1]=='\n')b[l-1]=0; return b; }
+void write_stdout(char* s) { fputs(s,stdout); fflush(stdout); }
