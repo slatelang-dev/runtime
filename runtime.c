@@ -180,6 +180,64 @@ char* slate_chars(char* s) {
     return buf;
 }
 
+int8_t slate_contains(char* haystack, char* needle) {
+    return strstr(haystack, needle) != NULL ? 1 : 0;
+}
+
+int8_t slate_starts_with(char* s, char* prefix) {
+    return strncmp(s, prefix, strlen(prefix)) == 0 ? 1 : 0;
+}
+
+int8_t slate_ends_with(char* s, char* suffix) {
+    int sl = strlen(s), fl = strlen(suffix);
+    if (fl > sl) return 0;
+    return strcmp(s + sl - fl, suffix) == 0 ? 1 : 0;
+}
+
+char* slate_replace(char* s, char* from, char* to) {
+    char* result = malloc(strlen(s) * 2 + 1);
+    char* pos = strstr(s, from);
+    if (!pos) { strcpy(result, s); return result; }
+    int from_len = strlen(from);
+    int to_len = strlen(to);
+    int prefix_len = pos - s;
+    memcpy(result, s, prefix_len);
+    memcpy(result + prefix_len, to, to_len);
+    strcpy(result + prefix_len + to_len, pos + from_len);
+    return result;
+}
+
+char* slate_split(char* s, char* delim) {
+    int dlen = strlen(delim);
+    int slen = strlen(s);
+    char* buf = malloc(sizeof(int64_t) + slen * sizeof(char*));
+    *(int64_t*)buf = 0;
+    int count = 0;
+    char** items = (char**)(buf + sizeof(int64_t));
+    char* copy = malloc(slen + 1);
+    strcpy(copy, s);
+    char* cur = copy;
+    while (1) {
+        char* found = dlen > 0 ? strstr(cur, delim) : NULL;
+        char* part;
+        if (!found) {
+            part = malloc(strlen(cur) + 1);
+            strcpy(part, cur);
+            items[count++] = part;
+            break;
+        }
+        int plen = found - cur;
+        part = malloc(plen + 1);
+        memcpy(part, cur, plen);
+        part[plen] = '\0';
+        items[count++] = part;
+        cur = found + dlen;
+        if (dlen == 0) { if (*cur == '\0') break; }
+    }
+    *(int64_t*)buf = count;
+    return buf;
+}
+
 // ─── Ink color functions (ANSI) ───────────────────────────────────────────────
 
 static char* ansi_wrap(const char* code, char* text) {
