@@ -175,22 +175,3 @@ static char* ansi_wrap(const char* code, char* text) {
     sprintf(buf, "%s%s\033[0m", code, text);
     return buf;
 }
-
-char* bold(char* s)        { return ansi_wrap("\033[1m", s); }
-char* dim(char* s)         { return ansi_wrap("\033[2m", s); }
-char* italic(char* s)      { return ansi_wrap("\033[3m", s); }
-char* underline(char* s)   { return ansi_wrap("\033[4m", s); }
-char* red(char* s)         { return ansi_wrap("\033[38;2;220;50;50m", s); }
-char* green(char* s)       { return ansi_wrap("\033[38;2;50;200;80m", s); }
-char* blue(char* s)        { return ansi_wrap("\033[38;2;50;120;220m", s); }
-char* yellow(char* s)      { return ansi_wrap("\033[38;2;230;200;50m", s); }
-char* orange(char* s)      { return ansi_wrap("\033[38;2;230;120;30m", s); }
-char* purple(char* s)      { return ansi_wrap("\033[38;2;150;80;220m", s); }
-char* slate_color(char* s) { return ansi_wrap("\033[38;2;112;128;144m", s); }
-char* gray(char* s)        { return ansi_wrap("\033[38;2;140;140;140m", s); }
-char* white(char* s)       { return ansi_wrap("\033[38;2;240;240;240m", s); }
-char* bold_red(char* s)    { return bold(red(s)); }
-char* bold_green(char* s)  { return bold(green(s)); }
-char* bold_yellow(char* s) { return bold(yellow(s)); }
-char* bold_blue(char* s)   { return bold(blue(s)); }
-char* bold_slate(char* s)  { return bold(slate_color(s)); }
