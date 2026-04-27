@@ -247,6 +247,42 @@ int8_t slate_exists(void* option_val) {
     return option_val != NULL ? 1 : 0;
 }
 
+char* slate_file_path(char* path) {
+    return path;
+}
+
+char* slate_file_read(char* path) {
+    FILE* f = fopen(path, "r");
+    if (!f) return "";
+    fseek(f, 0, SEEK_END);
+    long len = ftell(f);
+    rewind(f);
+    char* buf = malloc(len + 1);
+    fread(buf, 1, len, f);
+    buf[len] = '\0';
+    fclose(f);
+    return buf;
+}
+
+void slate_file_write(char* path, char* content) {
+    FILE* f = fopen(path, "w");
+    if (!f) return;
+    fputs(content, f);
+    fclose(f);
+}
+
+int8_t slate_file_exists_fn(char* path) {
+    FILE* f = fopen(path, "r");
+    if (f) { fclose(f); return 1; }
+    return 0;
+}
+
+char* slate_home_fn() {
+    char* h = getenv("HOME");
+    if (!h) return "";
+    return h;
+}
+
 // ─── Ink color functions (ANSI) ───────────────────────────────────────────────
 
 static char* ansi_wrap(const char* code, char* text) {
