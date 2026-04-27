@@ -166,6 +166,20 @@ char* slate_args(char* handle) {
     return buf;
 }
 
+char* slate_chars(char* s) {
+    int64_t len = strlen(s);
+    char* buf = malloc(sizeof(int64_t) + len * sizeof(char*));
+    *(int64_t*)buf = len;
+    char** items = (char**)(buf + sizeof(int64_t));
+    for (int64_t i = 0; i < len; i++) {
+        char* ch = malloc(2);
+        ch[0] = s[i];
+        ch[1] = '\0';
+        items[i] = ch;
+    }
+    return buf;
+}
+
 // ─── Ink color functions (ANSI) ───────────────────────────────────────────────
 
 static char* ansi_wrap(const char* code, char* text) {
