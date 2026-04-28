@@ -278,3 +278,11 @@ void run(char* cmd, ...) {
     va_end(args);
     system(buf);
 }
+
+char* slate_input() {
+    char* buf = malloc(4096);
+    if (!fgets(buf, 4096, stdin)) buf[0] = '\0';
+    int l = strlen(buf);
+    if (l > 0 && buf[l-1] == '\n') buf[l-1] = '\0';
+    return buf;
+}
