@@ -290,3 +290,11 @@ char* slate_input() {
 char* toml(char* source) {
     return slate_table_new();
 }
+
+extern void slate_main();
+
+int main(int argc, char** argv) {
+    slate_init_args(argc, argv);
+    slate_main();
+    return 0;
+}
