@@ -286,3 +286,7 @@ char* slate_input() {
     if (l > 0 && buf[l-1] == '\n') buf[l-1] = '\0';
     return buf;
 }
+
+char* toml(char* source) {
+    return slate_table_new();
+}
