@@ -279,14 +279,6 @@ void run(char* cmd, ...) {
     system(buf);
 }
 
-char* slate_input() {
-    char* buf = malloc(4096);
-    if (!fgets(buf, 4096, stdin)) buf[0] = '\0';
-    int l = strlen(buf);
-    if (l > 0 && buf[l-1] == '\n') buf[l-1] = '\0';
-    return buf;
-}
-
 char* toml(char* source) {
     return slate_table_new();
 }
@@ -294,7 +286,7 @@ char* toml(char* source) {
 extern void slate_main();
 
 int main(int argc, char** argv) {
-    slate_init_args(argc, argv);
+    slate_init_args(argc - 1, argv + 1);
     slate_main();
     return 0;
 }
