@@ -262,20 +262,17 @@ void slate_write(char* s) {
 }
 
 // ─── run(cmd, args...) ────────────────────────────────────────────────────────
-// Varargs — build command string from all non-null args
+// Fixed args — build command string from up to 5 non-empty args
 
-void run(char* cmd, ...) {
+void run(char* cmd, char* a1, char* a2, char* a3, char* a4, char* a5) {
     char buf[8192];
     int pos = 0;
-    if (cmd) pos += snprintf(buf + pos, sizeof(buf) - pos, "%s", cmd);
-    va_list args;
-    va_start(args, cmd);
-    char* arg;
-    while ((arg = va_arg(args, char*)) != NULL) {
-        if (arg[0] != '\0')
-            pos += snprintf(buf + pos, sizeof(buf) - pos, " %s", arg);
-    }
-    va_end(args);
+    if (cmd && cmd[0]) pos += snprintf(buf + pos, sizeof(buf) - pos, "%s", cmd);
+    if (a1 && a1[0]) pos += snprintf(buf + pos, sizeof(buf) - pos, " %s", a1);
+    if (a2 && a2[0]) pos += snprintf(buf + pos, sizeof(buf) - pos, " %s", a2);
+    if (a3 && a3[0]) pos += snprintf(buf + pos, sizeof(buf) - pos, " %s", a3);
+    if (a4 && a4[0]) pos += snprintf(buf + pos, sizeof(buf) - pos, " %s", a4);
+    if (a5 && a5[0]) pos += snprintf(buf + pos, sizeof(buf) - pos, " %s", a5);
     system(buf);
 }
 
