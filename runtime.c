@@ -137,7 +137,13 @@ char* slate_args(char* handle) {
 
 // ─── String methods ───────────────────────────────────────────────────────────
 
+static char* _cached_source = NULL;
+static char* _cached_chars = NULL;
+
 char* slate_chars(char* s) {
+    if (s == _cached_source && _cached_chars != NULL) {
+        return _cached_chars;
+    }
     int64_t len = strlen(s);
     char* buf = malloc(sizeof(int64_t) + len * sizeof(char*));
     *(int64_t*)buf = len;
@@ -147,6 +153,8 @@ char* slate_chars(char* s) {
         ch[0] = s[i]; ch[1] = '\0';
         items[i] = ch;
     }
+    _cached_source = s;
+    _cached_chars = buf;
     return buf;
 }
 
