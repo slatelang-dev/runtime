@@ -58,6 +58,7 @@ char* slate_add(char* p, char* val) {
     char** old = (char**)(p + sizeof(int64_t));
     for (int64_t i = 0; i < len; i++) items[i] = old[i];
     items[len] = val;
+    free(p);
     return buf;
 }
 
