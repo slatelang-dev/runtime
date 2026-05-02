@@ -161,25 +161,6 @@ char* slate_chars(char* s) {
     return buf;
 }
 
-char* slate_join_lines(char* list_ptr) {
-    int64_t count = slate_len(list_ptr);
-    int64_t total = 0;
-    for (int64_t i = 0; i < count; i++) {
-        total += strlen(slate_get(list_ptr, i)) + 1;
-    }
-    char* buf = malloc(total + 1);
-    int64_t pos = 0;
-    for (int64_t i = 0; i < count; i++) {
-        char* item = slate_get(list_ptr, i);
-        int64_t item_len = strlen(item);
-        memcpy(buf + pos, item, item_len);
-        pos += item_len;
-        buf[pos++] = '\n';
-    }
-    buf[total] = '\0';
-    return buf;
-}
-
 int8_t slate_contains(char* h, char* n) { return strstr(h, n) != NULL ? 1 : 0; }
 int8_t slate_starts_with(char* s, char* p) { return strncmp(s, p, strlen(p)) == 0 ? 1 : 0; }
 
