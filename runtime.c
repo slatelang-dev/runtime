@@ -4,8 +4,6 @@
 #include <stdint.h>
 #include <stdarg.h>
 
-// ─── String operations ────────────────────────────────────────────────────────
-
 char* slate_string_concat(char* a, char* b) {
     int la = strlen(a), lb = strlen(b);
     char* buf = malloc(la + lb + 1);
@@ -24,12 +22,7 @@ char* slate_string(int64_t n) {
 int64_t slate_int(char* s) { return (int64_t)atoll(s); }
 double slate_float(char* s) { return atof(s); }
 
-// ─── Print ────────────────────────────────────────────────────────────────────
-
 void slate_print(char* s) { puts(s); }
-
-// ─── List ─────────────────────────────────────────────────────────────────────
-// Layout: [int64 length][ptr items...]
 
 char* slate_list_new() {
     char* buf = malloc(sizeof(int64_t));
@@ -62,9 +55,6 @@ char* slate_add(char* p, char* val) {
     return buf;
 }
 
-// ─── Table ────────────────────────────────────────────────────────────────────
-// Layout: [int64 length][ptr keys...][ptr values...]
-
 char* slate_table_new() {
     char* buf = malloc(sizeof(int64_t));
     *(int64_t*)buf = 0;
@@ -94,7 +84,6 @@ char* slate_set(char* p, char* key, char* val) {
     int64_t len = *(int64_t*)p;
     char** keys = (char**)(p + sizeof(int64_t));
     char** vals = (char**)(p + sizeof(int64_t) + len * sizeof(char*));
-    // Update existing key
     for (int64_t i = 0; i < len; i++) {
         if (strcmp(keys[i], key) == 0) {
             int64_t sz = sizeof(int64_t) + len * sizeof(char*) * 2;
@@ -102,10 +91,10 @@ char* slate_set(char* p, char* key, char* val) {
             memcpy(buf, p, sz);
             char** new_vals = (char**)(buf + sizeof(int64_t) + len * sizeof(char*));
             new_vals[i] = val;
+            free(p);
             return buf;
         }
     }
-    // New key
     int64_t new_len = len + 1;
     char* buf = malloc(sizeof(int64_t) + new_len * sizeof(char*) * 2);
     *(int64_t*)buf = new_len;
@@ -114,10 +103,9 @@ char* slate_set(char* p, char* key, char* val) {
     for (int64_t i = 0; i < len; i++) { new_keys[i] = keys[i]; new_vals[i] = vals[i]; }
     new_keys[len] = key;
     new_vals[len] = val;
+    free(p);
     return buf;
 }
-
-// ─── Args ─────────────────────────────────────────────────────────────────────
 
 static char** _slate_argv = NULL;
 static int64_t _slate_argc = 0;
@@ -134,8 +122,6 @@ char* slate_args(char* handle) {
     for (int64_t i = 0; i < _slate_argc; i++) items[i] = _slate_argv[i];
     return buf;
 }
-
-// ─── String methods ───────────────────────────────────────────────────────────
 
 static char* _cached_source = NULL;
 static char* _cached_chars = NULL;
@@ -183,7 +169,6 @@ char* slate_replace(char* s, char* from, char* to) {
 
 char* slate_split(char* s, char* delim) {
     int dlen = strlen(delim), slen = strlen(s);
-    // Allocate conservatively
     char* buf = malloc(sizeof(int64_t) + (slen + 1) * sizeof(char*));
     int count = 0;
     char** items = (char**)(buf + sizeof(int64_t));
@@ -205,17 +190,13 @@ char* slate_split(char* s, char* delim) {
         items[count++] = part;
         cur = found + dlen;
     }
+    free(copy);
     *(int64_t*)buf = count;
     return buf;
 }
 
-// ─── Option ───────────────────────────────────────────────────────────────────
-
 void* slate_or(void* v, void* def) { return v == NULL ? def : v; }
 int8_t slate_exists(void* v) { return v != NULL ? 1 : 0; }
-
-// ─── File operations ──────────────────────────────────────────────────────────
-// file(path) returns the path as a handle — methods operate on it
 
 char* file(char* path) { return path; }
 char* home() { char* h = getenv("HOME"); return h ? h : ""; }
@@ -225,10 +206,12 @@ char* slate_file_read(char* path) {
     if (!f) return "";
     fseek(f, 0, SEEK_END);
     long len = ftell(f);
+    if (len < 0) { fclose(f); return ""; }
     rewind(f);
     char* buf = malloc(len + 1);
-    fread(buf, 1, len, f);
-    buf[len] = '\0';
+    if (!buf) { fclose(f); return ""; }
+    size_t read = fread(buf, 1, len, f);
+    buf[read] = '\0';
     fclose(f);
     return buf;
 }
@@ -248,43 +231,63 @@ int8_t slate_file_exists(char* path) {
 
 char* slate_file_path(char* path) { return path; }
 
-// ─── IO ───────────────────────────────────────────────────────────────────────
-
-// read() — read a line from stdin
 char* read() {
     char* buf = malloc(4096);
+    if (!buf) return "";
     if (!fgets(buf, 4096, stdin)) buf[0] = '\0';
     int l = strlen(buf);
     if (l > 0 && buf[l-1] == '\n') buf[l-1] = '\0';
     return buf;
 }
 
-// read_n(n) — read n bytes from stdin
 char* read_n(int64_t n) {
+    if (n < 0 || n > SIZE_MAX - 1) return "";
     char* buf = malloc(n + 1);
-    int64_t got = fread(buf, 1, n, stdin);
+    if (!buf) return "";
+    size_t got = fread(buf, 1, (size_t)n, stdin);
     buf[got] = '\0';
     return buf;
 }
 
-// write(s) — write to stdout without newline (used by LSP)
 void slate_write(char* s) {
     fputs(s, stdout);
     fflush(stdout);
 }
 
-// ─── run(cmd, args...) ────────────────────────────────────────────────────────
-// Fixed args — build command string from up to 5 non-empty args
-
 void run(char* cmd, char* a1, char* a2, char* a3, char* a4, char* a5) {
     char buf[8192];
     int pos = 0;
-    if (cmd && cmd[0]) pos += snprintf(buf + pos, sizeof(buf) - pos, "%s", cmd);
-    if (a1 && a1[0]) pos += snprintf(buf + pos, sizeof(buf) - pos, " %s", a1);
-    if (a2 && a2[0]) pos += snprintf(buf + pos, sizeof(buf) - pos, " %s", a2);
-    if (a3 && a3[0]) pos += snprintf(buf + pos, sizeof(buf) - pos, " %s", a3);
-    if (a4 && a4[0]) pos += snprintf(buf + pos, sizeof(buf) - pos, " %s", a4);
-    if (a5 && a5[0]) pos += snprintf(buf + pos, sizeof(buf) - pos, " %s", a5);
+    size_t rem = sizeof(buf);
+    if (cmd && cmd[0]) {
+        int written = snprintf(buf, rem, "%s", cmd);
+        if (written < 0 || (size_t)written >= rem) return;
+        pos = written; rem -= written;
+    }
+    if (a1 && a1[0]) {
+        int written = snprintf(buf + pos, rem, " %s", a1);
+        if (written < 0 || (size_t)written >= rem) return;
+        pos += written; rem -= written;
+    }
+    if (a2 && a2[0]) {
+        int written = snprintf(buf + pos, rem, " %s", a2);
+        if (written < 0 || (size_t)written >= rem) return;
+        pos += written; rem -= written;
+    }
+    if (a3 && a3[0]) {
+        int written = snprintf(buf + pos, rem, " %s", a3);
+        if (written < 0 || (size_t)written >= rem) return;
+        pos += written; rem -= written;
+    }
+    if (a4 && a4[0]) {
+        int written = snprintf(buf + pos, rem, " %s", a4);
+        if (written < 0 || (size_t)written >= rem) return;
+        pos += written; rem -= written;
+    }
+    if (a5 && a5[0]) {
+        int written = snprintf(buf + pos, rem, " %s", a5);
+        if (written < 0 || (size_t)written >= rem) return;
+        pos += written; rem -= written;
+    }
     system(buf);
 }
 
