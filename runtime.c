@@ -139,13 +139,15 @@ char* slate_args(char* handle) {
 
 static char* _cached_source = NULL;
 static char* _cached_chars = NULL;
+static int64_t _cached_len = 0;
 
 char* slate_chars(char* s) {
-    if (s == _cached_source && _cached_chars != NULL) {
+    int64_t len = strlen(s);
+    if (_cached_source == s && _cached_len == len && _cached_chars != NULL) {
         return _cached_chars;
     }
-    int64_t len = strlen(s);
-    char* buf = malloc(sizeof(int64_t) + len * sizeof(char*));
+    int64_t buflen = sizeof(int64_t) + len * sizeof(char*);
+    char* buf = malloc(buflen);
     *(int64_t*)buf = len;
     char** items = (char**)(buf + sizeof(int64_t));
     for (int64_t i = 0; i < len; i++) {
@@ -154,7 +156,27 @@ char* slate_chars(char* s) {
         items[i] = ch;
     }
     _cached_source = s;
+    _cached_len = len;
     _cached_chars = buf;
+    return buf;
+}
+
+char* slate_join_lines(char* list_ptr) {
+    int64_t count = slate_len(list_ptr);
+    int64_t total = 0;
+    for (int64_t i = 0; i < count; i++) {
+        total += strlen(slate_get(list_ptr, i)) + 1;
+    }
+    char* buf = malloc(total + 1);
+    int64_t pos = 0;
+    for (int64_t i = 0; i < count; i++) {
+        char* item = slate_get(list_ptr, i);
+        int64_t item_len = strlen(item);
+        memcpy(buf + pos, item, item_len);
+        pos += item_len;
+        buf[pos++] = '\n';
+    }
+    buf[total] = '\0';
     return buf;
 }
 
