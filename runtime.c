@@ -25,8 +25,9 @@ double slate_float(char* s) { return atof(s); }
 void slate_print(char* s) { puts(s); }
 
 char* slate_list_new() {
-    char* buf = malloc(sizeof(int64_t));
+    char* buf = malloc(sizeof(int64_t) * 2);
     *(int64_t*)buf = 0;
+    *((int64_t*)buf + 1) = 0;
     return buf;
 }
 
@@ -38,17 +39,30 @@ char* slate_get(char* p, int64_t index) {
         fprintf(stderr, "panic: index out of bounds (%lld of %lld)\n", (long long)index, (long long)len);
         exit(1);
     }
-    char** items = (char**)(p + sizeof(int64_t));
+    char** items = (char**)(p + sizeof(int64_t) * 2);
     return items[index];
 }
 
 char* slate_add(char* p, char* val) {
     int64_t len = *(int64_t*)p;
+    int64_t cap = *((int64_t*)p + 1);
+    
+    if (len < cap) {
+        char** items = (char**)(p + sizeof(int64_t) * 2);
+        items[len] = val;
+        *(int64_t*)p = len + 1;
+        return p;
+    }
+    
+    int64_t new_cap = cap == 0 ? 8 : cap * 2;
     int64_t new_len = len + 1;
-    char* buf = malloc(sizeof(int64_t) + new_len * sizeof(char*));
+    int64_t header_size = sizeof(int64_t) * 2;
+    int64_t buf_size = header_size + new_cap * sizeof(char*);
+    char* buf = malloc(buf_size);
     *(int64_t*)buf = new_len;
-    char** items = (char**)(buf + sizeof(int64_t));
-    char** old = (char**)(p + sizeof(int64_t));
+    *((int64_t*)buf + 1) = new_cap;
+    char** items = (char**)(buf + header_size);
+    char** old = (char**)(p + header_size);
     for (int64_t i = 0; i < len; i++) items[i] = old[i];
     items[len] = val;
     free(p);
@@ -116,9 +130,12 @@ void slate_init_args(int argc, char** argv) {
 }
 
 char* slate_args(char* handle) {
-    char* buf = malloc(sizeof(int64_t) + _slate_argc * sizeof(char*));
+    int64_t header_size = sizeof(int64_t) * 2;
+    int64_t cap = _slate_argc > 0 ? _slate_argc : 8;
+    char* buf = malloc(header_size + cap * sizeof(char*));
     *(int64_t*)buf = _slate_argc;
-    char** items = (char**)(buf + sizeof(int64_t));
+    *((int64_t*)buf + 1) = cap;
+    char** items = (char**)(buf + header_size);
     for (int64_t i = 0; i < _slate_argc; i++) items[i] = _slate_argv[i];
     return buf;
 }
@@ -132,15 +149,18 @@ char* slate_chars(char* s) {
     if (_cached_source == s && _cached_len == len && _cached_chars != NULL) {
         return _cached_chars;
     }
-    int64_t buflen = sizeof(int64_t) + len * sizeof(char*);
+    int64_t header_size = sizeof(int64_t) * 2;
+    int64_t buflen = header_size + len * sizeof(char*);
     char* buf = malloc(buflen);
     *(int64_t*)buf = len;
-    char** items = (char**)(buf + sizeof(int64_t));
+    *((int64_t*)buf + 1) = len;
+    char** items = (char**)(buf + header_size);
     for (int64_t i = 0; i < len; i++) {
         char* ch = malloc(2);
         ch[0] = s[i]; ch[1] = '\0';
         items[i] = ch;
     }
+    if (_cached_chars) free(_cached_chars);
     _cached_source = s;
     _cached_len = len;
     _cached_chars = buf;
