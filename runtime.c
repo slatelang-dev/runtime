@@ -31,6 +31,41 @@ char* slate_list_new() {
     return buf;
 }
 
+char* slate_list_add_ptr(char* p, char* val) {
+    int64_t len = *(int64_t*)p;
+    int64_t cap = *((int64_t*)p + 1);
+    
+    if (len < cap) {
+        char** items = (char**)(p + sizeof(int64_t) * 2);
+        items[len] = val;
+        *(int64_t*)p = len + 1;
+        return p;
+    }
+    
+    int64_t new_cap = cap == 0 ? 8 : cap * 2;
+    int64_t new_len = len + 1;
+    int64_t header_size = sizeof(int64_t) * 2;
+    int64_t buf_size = header_size + new_cap * sizeof(char*);
+    char* buf = malloc(buf_size);
+    *(int64_t*)buf = new_len;
+    *((int64_t*)buf + 1) = new_cap;
+    char** items = (char**)(buf + header_size);
+    char** old = (char**)(p + header_size);
+    for (int64_t i = 0; i < len; i++) items[i] = old[i];
+    items[len] = val;
+    free(p);
+    return buf;
+}
+
+char* slate_get_ptr(char* p, int64_t index) {
+    int64_t len = *(int64_t*)p;
+    if (index < 0 || index >= len) return "";
+    char** items = (char**)(p + sizeof(int64_t) * 2);
+    return items[index];
+}
+
+int64_t slate_len_list(char* p) { return *(int64_t*)p; }
+
 int64_t slate_len(char* p) { return *(int64_t*)p; }
 
 char* slate_join_lines(char* list_ptr) {
@@ -301,6 +336,17 @@ char* slate_chars(char* s) {
     _cached_len = len;
     _cached_chars = buf;
     return buf;
+}
+
+char* slate_hash(char* s) {
+    uint64_t hash = 2166136261u;
+    for (int i = 0; s[i]; i++) {
+        hash ^= (uint8_t)s[i];
+        hash *= 16777619u;
+    }
+    char* result = malloc(17);
+    snprintf(result, 17, "%016llx", (unsigned long long)hash);
+    return result;
 }
 
 int8_t slate_contains(char* h, char* n) { return strstr(h, n) != NULL ? 1 : 0; }
