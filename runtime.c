@@ -68,6 +68,28 @@ int64_t slate_len_list(char* p) { return *(int64_t*)p; }
 
 int64_t slate_len(char* p) { return *(int64_t*)p; }
 
+char* concat(char* base, ...) {
+    va_list args;
+    va_start(args, base);
+    size_t total = strlen(base);
+    char* arg;
+    while ((arg = va_arg(args, char*)) != NULL) {
+        total += strlen(arg);
+    }
+    va_end(args);
+    
+    char* result = malloc(total + 1);
+    strcpy(result, base);
+    
+    va_start(args, base);
+    while ((arg = va_arg(args, char*)) != NULL) {
+        strcat(result, arg);
+    }
+    va_end(args);
+    
+    return result;
+}
+
 char* slate_join_lines(char* list_ptr) {
     int64_t len = *(int64_t*)list_ptr;
     if (len == 0) {
