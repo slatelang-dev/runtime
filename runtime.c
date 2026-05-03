@@ -371,6 +371,17 @@ char* slate_hash(char* s) {
     return result;
 }
 
+char* hash(char* s) {
+    uint64_t h = 14695981039346656037ULL;
+    while (*s) {
+        h ^= (uint8_t)*s++;
+        h *= 1099511628211ULL;
+    }
+    char* result = malloc(17);
+    snprintf(result, 17, "%016llx", (unsigned long long)h);
+    return result;
+}
+
 int8_t slate_contains(char* h, char* n) { return strstr(h, n) != NULL ? 1 : 0; }
 int8_t slate_starts_with(char* s, char* p) { return strncmp(s, p, strlen(p)) == 0 ? 1 : 0; }
 
