@@ -137,6 +137,99 @@ static inline double slate_str_to_float(char* s) {
     return atof(s);
 }
 
+static inline char* slate_concat(char* a, char* b) {
+    if (a == NULL) a = "";
+    if (b == NULL) b = "";
+    size_t len_a = strlen(a);
+    size_t len_b = strlen(b);
+    char* result = malloc(len_a + len_b + 1);
+    memcpy(result, a, len_a);
+    memcpy(result + len_a, b, len_b);
+    result[len_a + len_b] = 0;
+    return result;
+}
+
+static inline char* slate_ansi_reset() { return "\033[0m"; }
+static inline char* slate_ansi_bold() { return "\033[1m"; }
+static inline char* slate_ansi_dim() { return "\033[2m"; }
+static inline char* slate_ansi_italic() { return "\033[3m"; }
+static inline char* slate_ansi_underline() { return "\033[4m"; }
+
+static inline char* slate_red(char* s) {
+    if (s == NULL) s = "";
+    char* r = slate_concat("\033[38;2;220;50;50m", s);
+    return slate_concat(r, slate_ansi_reset());
+}
+static inline char* slate_green(char* s) {
+    if (s == NULL) s = "";
+    char* r = slate_concat("\033[38;2;50;200;80m", s);
+    return slate_concat(r, slate_ansi_reset());
+}
+static inline char* slate_blue(char* s) {
+    if (s == NULL) s = "";
+    char* r = slate_concat("\033[38;2;50;120;220m", s);
+    return slate_concat(r, slate_ansi_reset());
+}
+static inline char* slate_yellow(char* s) {
+    if (s == NULL) s = "";
+    char* r = slate_concat("\033[38;2;230;200;50m", s);
+    return slate_concat(r, slate_ansi_reset());
+}
+static inline char* slate_orange(char* s) {
+    if (s == NULL) s = "";
+    char* r = slate_concat("\033[38;2;230;120;30m", s);
+    return slate_concat(r, slate_ansi_reset());
+}
+static inline char* slate_purple(char* s) {
+    if (s == NULL) s = "";
+    char* r = slate_concat("\033[38;2;150;80;220m", s);
+    return slate_concat(r, slate_ansi_reset());
+}
+static inline char* slate_slate_color(char* s) {
+    if (s == NULL) s = "";
+    char* r = slate_concat("\033[38;2;112;128;144m", s);
+    return slate_concat(r, slate_ansi_reset());
+}
+static inline char* slate_gray(char* s) {
+    if (s == NULL) s = "";
+    char* r = slate_concat("\033[38;2;140;140;140m", s);
+    return slate_concat(r, slate_ansi_reset());
+}
+static inline char* slate_white(char* s) {
+    if (s == NULL) s = "";
+    char* r = slate_concat("\033[38;2;240;240;240m", s);
+    return slate_concat(r, slate_ansi_reset());
+}
+static inline char* slate_black(char* s) {
+    if (s == NULL) s = "";
+    char* r = slate_concat("\033[38;2;20;20;20m", s);
+    return slate_concat(r, slate_ansi_reset());
+}
+static inline char* slate_bold(char* s) {
+    if (s == NULL) s = "";
+    char* r = slate_concat(slate_ansi_bold(), s);
+    return slate_concat(r, slate_ansi_reset());
+}
+static inline char* slate_dim(char* s) {
+    if (s == NULL) s = "";
+    char* r = slate_concat(slate_ansi_dim(), s);
+    return slate_concat(r, slate_ansi_reset());
+}
+static inline char* slate_italic(char* s) {
+    if (s == NULL) s = "";
+    char* r = slate_concat(slate_ansi_italic(), s);
+    return slate_concat(r, slate_ansi_reset());
+}
+static inline char* slate_underline(char* s) {
+    if (s == NULL) s = "";
+    char* r = slate_concat(slate_ansi_underline(), s);
+    return slate_concat(r, slate_ansi_reset());
+}
+static inline char* slate_bold_slate(char* s) { return slate_bold(slate_slate_color(s)); }
+static inline char* slate_bold_green(char* s) { return slate_bold(slate_green(s)); }
+static inline char* slate_bold_yellow(char* s) { return slate_bold(slate_yellow(s)); }
+static inline char* slate_bold_blue(char* s) { return slate_bold(slate_blue(s)); }
+
 static inline void* slate_file_read(char* path) {
     FILE* f = fopen(path, "r");
     if (f == NULL) return NULL;
@@ -299,22 +392,6 @@ static inline char* slate_source(void* parse_result) {
 
 static inline void* slate_node(void* parse_result) {
     return NULL;
-}
-
-static inline char* slate_errors(void* warnings, char* source) {
-    return "";
-}
-
-static inline char* slate_concat(char* a, char* b) {
-    if (a == NULL) a = "";
-    if (b == NULL) b = "";
-    size_t len_a = strlen(a);
-    size_t len_b = strlen(b);
-    char* result = malloc(len_a + len_b + 1);
-    memcpy(result, a, len_a);
-    memcpy(result + len_a, b, len_b);
-    result[len_a + len_b] = 0;
-    return result;
 }
 
 static inline void* slate_empty() {
