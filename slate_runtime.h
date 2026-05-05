@@ -243,4 +243,28 @@ static inline void* slate_analyse(void* node, char* file) {
     return NULL;
 }
 
+static inline void* slate_analyse_bare(void* node, char* file, int64_t is_bare) {
+    return NULL;
+}
+
+static inline void* slate_load_module(char* name, char* path) {
+    return NULL;
+}
+
+static inline void* slate_load_entry(void* project) {
+    return NULL;
+}
+
+static inline void* slate_load_project_file() {
+    return NULL;
+}
+
+static inline int64_t slate_project_valid(void* project) {
+    return 1;
+}
+
+static inline void* slate_collect_module_asts(void* ast, char* source_dir, void* list) {
+    return list;
+}
+
 #endif
