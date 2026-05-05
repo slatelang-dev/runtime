@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 static inline void* slate_alloc(int64_t size) {
     return malloc((size_t)size);
@@ -47,7 +48,9 @@ static inline void slate_list_set(void* list, int64_t idx, void* val) {
 }
 
 static inline int64_t slate_time() {
-    return (int64_t)time(NULL);
+    struct timespec ts;
+    clock_gettime(CLOCK_REALTIME, &ts);
+    return ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
 }
 
 static inline char* slate_env(char* name) {
