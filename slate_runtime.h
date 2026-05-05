@@ -305,4 +305,69 @@ static inline char* slate_errors(void* warnings, char* source) {
     return "";
 }
 
+static inline char* slate_concat(char* a, char* b) {
+    if (a == NULL) a = "";
+    if (b == NULL) b = "";
+    size_t len_a = strlen(a);
+    size_t len_b = strlen(b);
+    char* result = malloc(len_a + len_b + 1);
+    memcpy(result, a, len_a);
+    memcpy(result + len_a, b, len_b);
+    result[len_a + len_b] = 0;
+    return result;
+}
+
+static inline void* slate_empty() {
+    return NULL;
+}
+
+static inline void* slate_table() {
+    return NULL;
+}
+
+static inline void* slate_list(int64_t cap) {
+    return slate_list_make(cap);
+}
+
+static inline void* slate_load_manifest(char* cache_dir) {
+    return NULL;
+}
+
+static inline void slate_save_manifest(char* cache_dir, void* manifest) {
+}
+
+static inline char* slate_int_to_str(int64_t n) {
+    char buf[32];
+    snprintf(buf, sizeof(buf), "%lld", (long long)n);
+    return strdup(buf);
+}
+
+static inline char* slate_float_to_str(double f) {
+    char buf[64];
+    snprintf(buf, sizeof(buf), "%g", f);
+    return strdup(buf);
+}
+
+static inline int64_t slate_str_to_int(char* s) {
+    if (s == NULL || s[0] == 0) return 0;
+    return (int64_t)atoll(s);
+}
+
+static inline double slate_str_to_float(char* s) {
+    if (s == NULL || s[0] == 0) return 0.0;
+    return atof(s);
+}
+
+static inline char* slate_to_string(void* v) {
+    return "";
+}
+
+static inline void* slate_build_registry_from_modules(void* modules) {
+    return NULL;
+}
+
+static inline int64_t slate_is_bare(void* project) {
+    return 0;
+}
+
 #endif
