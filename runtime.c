@@ -3,6 +3,21 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdarg.h>
+#include <time.h>
+
+char* slate_time() {
+    struct timespec ts;
+    clock_gettime(CLOCK_REALTIME, &ts);
+    int64_t ms = (int64_t)ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
+    char* buf = malloc(32);
+    snprintf(buf, 32, "%lld", (long long)ms);
+    return buf;
+}
+
+char* slate_env(char* key) {
+    char* val = getenv(key);
+    return val ? val : "";
+}
 
 char* slate_string_concat(char* a, char* b) {
     int la = strlen(a), lb = strlen(b);
