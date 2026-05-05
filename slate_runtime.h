@@ -129,22 +129,6 @@ static inline int64_t slate_file_exists(char* path) {
     return 1;
 }
 
-static inline int64_t slate_len(void* list) {
-    if (list == NULL) return 0;
-    void*** arr = (void***)list;
-    return (int64_t)arr[1];
-}
-
-static inline void* slate_get(void* list, int64_t idx) {
-    void*** arr = (void***)list;
-    return arr[0][idx];
-}
-
-static inline void slate_set(void* list, int64_t idx, void* val) {
-    void*** arr = (void***)list;
-    arr[0][idx] = val;
-}
-
 static inline void* slate_add(void* list, void* val) {
     return list;
 }
