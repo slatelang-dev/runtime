@@ -329,45 +329,4 @@ static inline void* slate_list(int64_t cap) {
     return slate_list_make(cap);
 }
 
-static inline void* slate_load_manifest(char* cache_dir) {
-    return NULL;
-}
-
-static inline void slate_save_manifest(char* cache_dir, void* manifest) {
-}
-
-static inline char* slate_int_to_str(int64_t n) {
-    char buf[32];
-    snprintf(buf, sizeof(buf), "%lld", (long long)n);
-    return strdup(buf);
-}
-
-static inline char* slate_float_to_str(double f) {
-    char buf[64];
-    snprintf(buf, sizeof(buf), "%g", f);
-    return strdup(buf);
-}
-
-static inline int64_t slate_str_to_int(char* s) {
-    if (s == NULL || s[0] == 0) return 0;
-    return (int64_t)atoll(s);
-}
-
-static inline double slate_str_to_float(char* s) {
-    if (s == NULL || s[0] == 0) return 0.0;
-    return atof(s);
-}
-
-static inline char* slate_to_string(void* v) {
-    return "";
-}
-
-static inline void* slate_build_registry_from_modules(void* modules) {
-    return NULL;
-}
-
-static inline int64_t slate_is_bare(void* project) {
-    return 0;
-}
-
 #endif
