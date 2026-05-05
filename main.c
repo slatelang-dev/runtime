@@ -1,8 +1,8 @@
 #include "slate_runtime.h"
 
-extern void slate__main(void);
+extern void main(void);
 
-int main(int argc, char** argv) {
-    slate__main();
+int main_caller(int argc, char** argv) {
+    main();
     return 0;
 }

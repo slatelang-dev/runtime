@@ -42,6 +42,27 @@ typedef struct {
     char* path;
 } slate_ModuleInfo;
 
+static inline void* ModuleInfo(char* path, char* name) {
+    slate_ModuleInfo* mi = malloc(sizeof(slate_ModuleInfo));
+    mi->path = path;
+    mi->name = name;
+    return mi;
+}
+
+static inline void* parse(char* source) { return NULL; }
+static inline void* analyse(void* ast, char* path, int64_t bare) { return NULL; }
+static inline void* analyse_bare(void* ast, char* path, int64_t bare) { return NULL; }
+static inline char* render_all(void* errors, void* warnings, char* source) { return ""; }
+static inline void* load_module(char* name, char* path) { return NULL; }
+static inline void* load_entry(void* project) { return NULL; }
+static inline void* load_project_file() { return NULL; }
+static inline int64_t project_valid(void* project) { return 0; }
+static inline void* collect_module_asts(void* ast, char* source_dir, void* list) { return list; }
+static inline void* walk_module(void* ast, void* reg) { return NULL; }
+static inline void* build_registry_from_modules(void* modules) { return NULL; }
+static inline void* load_manifest(char* cache_dir) { return NULL; }
+static inline void save_manifest(char* cache_dir, void* manifest) {}
+
 static inline void* slate_alloc(int64_t size) {
     return malloc((size_t)size);
 }
@@ -230,6 +251,25 @@ static inline char* slate_bold_green(char* s) { return slate_bold(slate_green(s)
 static inline char* slate_bold_yellow(char* s) { return slate_bold(slate_yellow(s)); }
 static inline char* slate_bold_blue(char* s) { return slate_bold(slate_blue(s)); }
 
+static inline char* red(char* s) { return slate_red(s); }
+static inline char* green(char* s) { return slate_green(s); }
+static inline char* blue(char* s) { return slate_blue(s); }
+static inline char* yellow(char* s) { return slate_yellow(s); }
+static inline char* orange(char* s) { return slate_orange(s); }
+static inline char* purple(char* s) { return slate_purple(s); }
+static inline char* slate_color(char* s) { return slate_slate_color(s); }
+static inline char* gray(char* s) { return slate_gray(s); }
+static inline char* white(char* s) { return slate_white(s); }
+static inline char* black(char* s) { return slate_black(s); }
+static inline char* bold(char* s) { return slate_bold(s); }
+static inline char* dim(char* s) { return slate_dim(s); }
+static inline char* italic(char* s) { return slate_italic(s); }
+static inline char* underline(char* s) { return slate_underline(s); }
+static inline char* bold_slate(char* s) { return slate_bold_slate(s); }
+static inline char* bold_green(char* s) { return slate_bold_green(s); }
+static inline char* bold_yellow(char* s) { return slate_bold_yellow(s); }
+static inline char* bold_blue(char* s) { return slate_bold_blue(s); }
+
 static inline void* slate_file_read(char* path) {
     FILE* f = fopen(path, "r");
     if (f == NULL) return NULL;
@@ -399,26 +439,34 @@ static inline void* slate_empty() {
 }
 
 static inline void* slate_table() {
-    return NULL;
+    return slate_list_make(16);
 }
 
 static inline void* slate_list(int64_t cap) {
     return slate_list_make(cap);
 }
 
-static inline void* slate_table_get(char* key, void* table) {
+static inline void* table_get(void* table, void* key) {
     return NULL;
 }
 
-static inline void slate_table_set(char* key, void* val, void* table) {
+static inline void table_set(void* table, void* key, void* val) {
 }
 
-static inline int64_t slate_table_has(char* key, void* table) {
+static inline int64_t table_has(void* table, void* key) {
     return 0;
 }
 
-static inline void* slate_table_keys(void* table) {
+static inline void* table_keys(void* table) {
     return NULL;
+}
+
+static inline void* table_values(void* table) {
+    return NULL;
+}
+
+static inline int64_t slate_run_varargs(int64_t argc, void** argv) {
+    return 0;
 }
 
 #endif
