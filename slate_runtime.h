@@ -34,7 +34,21 @@ static inline int64_t slate_strcmp(char* a, char* b) {
 static inline void* slate_list_make(int64_t cap) {
     void** arr = malloc((size_t)(cap * sizeof(void*)));
     memset(arr, 0, (size_t)(cap * sizeof(void*)));
-    return arr;
+    return (void*)arr;
+}
+
+static inline int64_t slate_len(void* list) {
+    return 0;
+}
+
+static inline void* slate_get(void* list, int64_t idx) {
+    void** arr = (void**)list;
+    return arr[idx];
+}
+
+static inline void slate_set(void* list, int64_t idx, void* val) {
+    void** arr = (void**)list;
+    arr[idx] = val;
 }
 
 static inline void* slate_list_get(void* list, int64_t idx) {
@@ -168,12 +182,14 @@ static inline int64_t slate_contains(char* s, char* sub) {
 
 static inline char* slate_trim(char* s) {
     if (s == NULL) return NULL;
-    while (*s == ' ' || *s == '\t' || *s == '\n' || *s == '\r') s++;
-    char* end = s + strlen(s) - 1;
-    while (end > s && (*end == ' ' || *end == '\t' || *end == '\n' || *end == '\r')) end--;
-    char* result = malloc((size_t)(end - s + 2));
-    strncpy(result, s, (size_t)(end - s + 1));
-    result[end - s + 1] = 0;
+    char* start = s;
+    while (*start == ' ' || *start == '\t' || *start == '\n' || *start == '\r') start++;
+    char* end = start + strlen(start) - 1;
+    while (end > start && (*end == ' ' || *end == '\t' || *end == '\n' || *end == '\r')) end--;
+    size_t len = (size_t)(end - start + 1);
+    char* result = malloc(len + 1);
+    strncpy(result, start, len);
+    result[len] = 0;
     return result;
 }
 
