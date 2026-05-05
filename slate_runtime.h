@@ -329,10 +329,6 @@ static inline void* slate_list(int64_t cap) {
     return slate_list_make(cap);
 }
 
-static inline void* slate_table() {
-    return NULL;
-}
-
 static inline void* slate_table_get(char* key, void* table) {
     return NULL;
 }
