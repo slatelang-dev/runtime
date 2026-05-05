@@ -51,16 +51,6 @@ static inline void slate_set(void* list, int64_t idx, void* val) {
     arr[idx] = val;
 }
 
-static inline void* slate_list_get(void* list, int64_t idx) {
-    void*** arr = (void***)list;
-    return arr[0][idx];
-}
-
-static inline void slate_list_set(void* list, int64_t idx, void* val) {
-    void*** arr = (void***)list;
-    arr[0][idx] = val;
-}
-
 static inline int64_t slate_time() {
     struct timespec ts;
     clock_gettime(CLOCK_REALTIME, &ts);
