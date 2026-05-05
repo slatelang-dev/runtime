@@ -267,4 +267,16 @@ static inline void* slate_collect_module_asts(void* ast, char* source_dir, void*
     return list;
 }
 
+static inline char* slate_source(void* parse_result) {
+    return "";
+}
+
+static inline void* slate_node(void* parse_result) {
+    return NULL;
+}
+
+static inline char* slate_errors(void* warnings, char* source) {
+    return "";
+}
+
 #endif
