@@ -251,7 +251,7 @@ static inline int64_t slate_hash(char* s) {
     if (s == NULL) return 0;
     int64_t h = 0;
     while (*s) {
-        h = h * 31 + *s;
+        h = h * 31 + (int64_t)(unsigned char)*s;
         s++;
     }
     return h;
@@ -327,16 +327,6 @@ static inline void* slate_table() {
 
 static inline void* slate_list(int64_t cap) {
     return slate_list_make(cap);
-}
-
-static inline int64_t slate_hash(char* s) {
-    if (s == NULL) return 0;
-    int64_t h = 0;
-    while (*s) {
-        h = h * 31 + (int64_t)(unsigned char)*s;
-        s++;
-    }
-    return h;
 }
 
 #endif
