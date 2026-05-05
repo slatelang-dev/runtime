@@ -7,6 +7,41 @@
 #include <stdio.h>
 #include <time.h>
 
+typedef struct {
+    int64_t success;
+    char* message;
+    void* node;
+    char* source;
+} slate_ParseResult;
+
+typedef struct {
+    int64_t success;
+    void* errors;
+    void* warnings;
+    char* source;
+} slate_AnalysisResult;
+
+typedef struct {
+    char* name;
+    char* path;
+    char* source;
+    void* ast;
+    int64_t loaded;
+    char* load_error;
+} slate_LoadedModule;
+
+typedef struct {
+    char* name;
+    char* entry;
+    int64_t bare;
+    char* bin;
+} slate_Project;
+
+typedef struct {
+    char* name;
+    char* path;
+} slate_ModuleInfo;
+
 static inline void* slate_alloc(int64_t size) {
     return malloc((size_t)size);
 }
