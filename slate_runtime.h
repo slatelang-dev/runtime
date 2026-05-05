@@ -118,4 +118,129 @@ static inline int64_t slate_file_write(char* path, char* data) {
     return 1;
 }
 
+static inline int64_t slate_file_exists(char* path) {
+    FILE* f = fopen(path, "r");
+    if (f == NULL) return 0;
+    fclose(f);
+    return 1;
+}
+
+static inline int64_t slate_len(void* list) {
+    if (list == NULL) return 0;
+    void*** arr = (void***)list;
+    return (int64_t)arr[1];
+}
+
+static inline void* slate_get(void* list, int64_t idx) {
+    void*** arr = (void***)list;
+    return arr[0][idx];
+}
+
+static inline void slate_set(void* list, int64_t idx, void* val) {
+    void*** arr = (void***)list;
+    arr[0][idx] = val;
+}
+
+static inline void* slate_add(void* list, void* val) {
+    return list;
+}
+
+static inline int64_t slate_has(void* table, void* key) {
+    return 0;
+}
+
+static inline void* slate_keys(void* table) {
+    return NULL;
+}
+
+static inline void* slate_values(void* table) {
+    return NULL;
+}
+
+static inline char* slate_split(char* s, char* delim) {
+    return strdup(s);
+}
+
+static inline int64_t slate_contains(char* s, char* sub) {
+    if (s == NULL || sub == NULL) return 0;
+    return strstr(s, sub) != NULL;
+}
+
+static inline char* slate_trim(char* s) {
+    if (s == NULL) return NULL;
+    while (*s == ' ' || *s == '\t' || *s == '\n' || *s == '\r') s++;
+    char* end = s + strlen(s) - 1;
+    while (end > s && (*end == ' ' || *end == '\t' || *end == '\n' || *end == '\r')) end--;
+    char* result = malloc((size_t)(end - s + 2));
+    strncpy(result, s, (size_t)(end - s + 1));
+    result[end - s + 1] = 0;
+    return result;
+}
+
+static inline char* slate_replace(char* s, char* old, char* new) {
+    if (s == NULL) return NULL;
+    return strdup(s);
+}
+
+static inline int64_t slate_starts_with(char* s, char* prefix) {
+    if (s == NULL || prefix == NULL) return 0;
+    return strncmp(s, prefix, strlen(prefix)) == 0;
+}
+
+static inline int64_t slate_ends_with(char* s, char* suffix) {
+    if (s == NULL || suffix == NULL) return 0;
+    size_t slen = strlen(s);
+    size_t slen2 = strlen(suffix);
+    if (slen < slen2) return 0;
+    return strcmp(s + slen - slen2, suffix) == 0;
+}
+
+static inline int64_t slate_to_int(void* v) {
+    return 0;
+}
+
+static inline double slate_to_float(void* v) {
+    return 0.0;
+}
+
+static inline char* slate_to_string(void* v) {
+    return "";
+}
+
+static inline char* slate_home() {
+    char* home = getenv("HOME");
+    if (home == NULL) return "/tmp";
+    return home;
+}
+
+static inline void* slate_file(char* path) {
+    return (void*)path;
+}
+
+static inline int64_t slate_run(char* cmd) {
+    return system(cmd);
+}
+
+static inline int64_t slate_hash(char* s) {
+    if (s == NULL) return 0;
+    int64_t h = 0;
+    while (*s) {
+        h = h * 31 + *s;
+        s++;
+    }
+    return h;
+}
+
+static inline char* slate_render_all(void* errors, void* warnings, char* source) {
+    return "";
+}
+
+static inline void* slate_parse(char* source) {
+    return NULL;
+}
+
+static inline void* slate_analyse(void* node, char* file) {
+    return NULL;
+}
+
 #endif
