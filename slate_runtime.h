@@ -464,7 +464,7 @@ void* slate_toml(char* source);
 
 int main(int argc, char** argv) {
     slate_init_args(argc, argv);
-    slate__main();
+    main();
     return 0;
 }
 
