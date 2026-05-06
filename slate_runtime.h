@@ -452,4 +452,13 @@ static inline char* bold_yellow(const char* s) { return bold(yellow(s)); }
 static inline char* bold_blue(const char* s)   { return bold(blue(s)); }
 static inline char* bold_red(const char* s)    { return bold(red(s)); }
 
+// Forward declarations — implementations come from compiled Slate core
+void* slate_parse(const char* source);
+void* slate_analyse(void* ast, const char* path);
+void* slate_analyse_bare(void* ast, const char* path, int8_t bare);
+char* slate_render_all(void* errors, void* warnings, const char* source);
+void* slate_tokenize(const char* source);
+void* slate_json(const char* source);
+void* slate_toml(const char* source);
+
 #endif // SLATE_RUNTIME_H
