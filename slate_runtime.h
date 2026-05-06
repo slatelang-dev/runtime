@@ -415,4 +415,57 @@ static inline int64_t slate_run_varargs(int64_t argc, void** argv) {
     return 0;
 }
 
+static inline void* slate_table_set(void* table, void* key, void* val) {
+    return table;
+}
+
+static inline char* slate_read() {
+    char buf[4096];
+    if (fgets(buf, sizeof(buf), stdin) == NULL) return "";
+    size_t len = strlen(buf);
+    if (len > 0 && buf[len-1] == '\n') buf[len-1] = 0;
+    return strdup(buf);
+}
+
+static inline char* slate_read_n(int64_t n) {
+    char* buf = malloc((size_t)(n + 1));
+    size_t read = fread(buf, 1, (size_t)n, stdin);
+    buf[read] = 0;
+    return buf;
+}
+
+static inline void slate_write(char* s) {
+    if (s) fputs(s, stdout);
+    fflush(stdout);
+}
+
+static void** _slate_args = NULL;
+static int64_t _slate_args_len = 0;
+
+static inline void slate_init_args(int argc, char** argv) {
+    _slate_args_len = argc > 1 ? argc - 1 : 0;
+    _slate_args = malloc(sizeof(void*) * (size_t)(_slate_args_len + 1));
+    for (int64_t i = 0; i < _slate_args_len; i++) {
+        _slate_args[i] = argv[i + 1];
+    }
+}
+
+static inline void* slate_args() {
+    return (void*)_slate_args;
+}
+
+void* slate_parse(char* source);
+void* slate_analyse(void* ast, char* path);
+void* slate_analyse_bare(void* ast, char* path, int8_t bare);
+char* slate_render_all(void* errors, void* warnings, char* source);
+void* slate_tokenize(char* source);
+void* slate_json(char* source);
+void* slate_toml(char* source);
+
+int main(int argc, char** argv) {
+    slate_init_args(argc, argv);
+    slate__main();
+    return 0;
+}
+
 #endif
