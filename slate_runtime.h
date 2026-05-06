@@ -462,10 +462,4 @@ void* slate_tokenize(char* source);
 void* slate_json(char* source);
 void* slate_toml(char* source);
 
-int main(int argc, char** argv) {
-    slate_init_args(argc, argv);
-    main();
-    return 0;
-}
-
 #endif
