@@ -60,8 +60,6 @@ static inline int64_t project_valid(void* project) { return 0; }
 static inline void* collect_module_asts(void* ast, char* source_dir, void* list) { return list; }
 static inline void* walk_module(void* ast, void* reg) { return NULL; }
 static inline void* build_registry_from_modules(void* modules) { return NULL; }
-static inline void* load_manifest(char* cache_dir) { return NULL; }
-static inline void save_manifest(char* cache_dir, void* manifest) {}
 
 static inline void* slate_alloc(int64_t size) {
     return malloc((size_t)size);
