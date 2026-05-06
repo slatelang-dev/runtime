@@ -7,8 +7,6 @@
 #include <stdio.h>
 #include <time.h>
 #include <unistd.h>
-#include <sys/wait.h>
-#include <stdarg.h>
 
 // ── Structs ───────────────────────────────────────────────────────────────────
 
@@ -452,8 +450,22 @@ static inline char* bold_yellow(const char* s) { return bold(yellow(s)); }
 static inline char* bold_blue(const char* s)   { return bold(blue(s)); }
 static inline char* bold_red(const char* s)    { return bold(red(s)); }
 
-// Builtin user functions
+// ── Forward declarations ──────────────────────────────────────────────────────
+// These are implemented by the compiled Slate core .o files, not here.
+
+void* slate_parse(const char* source);
+void* slate_analyse(void* ast, const char* path);
+void* slate_analyse_bare(void* ast, const char* path, int8_t bare);
+char* slate_render_all(void* errors, void* warnings, const char* source);
+void* slate_tokenize(const char* source);
 void* slate_json(const char* source);
 void* slate_toml(const char* source);
+void* load_module(const char* name, const char* path);
+void* load_entry(void* project);
+void* load_project_file(void);
+int64_t project_valid(void* project);
+void* collect_module_asts(void* ast, const char* source_dir, void* seen);
+char* walk_module(void* ast, void* reg);
+void* build_registry_from_modules(void* modules);
 
 #endif // SLATE_RUNTIME_H
