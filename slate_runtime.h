@@ -118,22 +118,6 @@ static inline char* slate_env(char* name) {
     return val;
 }
 
-static inline void slate_print(char* s) {
-    printf("%s", s);
-}
-
-static inline void slate_print_int(int64_t n) {
-    printf("%lld", (long long)n);
-}
-
-static inline void slate_print_float(double f) {
-    printf("%g", f);
-}
-
-static inline void slate_println() {
-    printf("\n");
-}
-
 static inline char* slate_int_to_str(int64_t n) {
     char buf[32];
     snprintf(buf, sizeof(buf), "%lld", (long long)n);
@@ -393,42 +377,6 @@ static inline char* slate_render_all(void* errors, void* warnings, char* source)
 }
 
 static inline void* slate_parse(char* source) {
-    return NULL;
-}
-
-static inline void* slate_analyse(void* node, char* file) {
-    return NULL;
-}
-
-static inline void* slate_analyse_bare(void* node, char* file, int64_t is_bare) {
-    return NULL;
-}
-
-static inline void* slate_load_module(char* name, char* path) {
-    return NULL;
-}
-
-static inline void* slate_load_entry(void* project) {
-    return NULL;
-}
-
-static inline void* slate_load_project_file() {
-    return NULL;
-}
-
-static inline int64_t slate_project_valid(void* project) {
-    return 1;
-}
-
-static inline void* slate_collect_module_asts(void* ast, char* source_dir, void* list) {
-    return list;
-}
-
-static inline char* slate_source(void* parse_result) {
-    return "";
-}
-
-static inline void* slate_node(void* parse_result) {
     return NULL;
 }
 
