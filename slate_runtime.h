@@ -31,8 +31,8 @@ typedef struct {
     char*   path;
     char*   source;
     void*   ast;
-    int64_t loaded;
-    char*   load_error;
+    int8_t  success;
+    char*   error;
 } slate_LoadedModule;
 
 typedef struct {
@@ -459,15 +459,12 @@ void* slate_parse(const char* source);
 void* slate_analyse(void* ast, const char* path);
 void* slate_analyse_bare(void* ast, const char* path, int8_t bare);
 char* slate_render_all(void* errors, void* warnings, const char* source);
-void* slate_tokenize(const char* source);
-void* slate_json(const char* source);
-void* slate_toml(const char* source);
-void* load_module(const char* name, const char* path);
-void* load_entry(void* project);
 void* load_project_file(void);
 int64_t project_valid(void* project);
-void* collect_module_asts(void* ast, const char* source_dir, void* seen);
-char* walk_module(void* ast, void* reg);
+void* load_entry(void* project);
+void* discover_modules(void* ast, char* source_dir, void* seen);
+void* load_modules(void* stubs);
 void* build_registry_from_modules(void* modules);
+char* walk_module(void* ast, void* reg);
 
 #endif // SLATE_RUNTIME_H
