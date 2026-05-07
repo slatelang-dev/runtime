@@ -47,7 +47,26 @@ typedef struct {
 typedef struct {
     char* name;
     char* path;
-} slate_ModuleInfo;
+} slate_ModuleStub;
+
+typedef struct {
+    void* fn_returns;
+    void* field_types;
+    void* field_owners;
+    void* field_indices;
+    void* enum_variants;
+    void* struct_names;
+} slate_Registry;
+
+// ── Struct constructors ───────────────────────────────────────────────────────
+// Struct literals in Slate emit as C function calls
+
+static inline void* ModuleStub(const char* name, const char* path) {
+    slate_ModuleStub* ms = malloc(sizeof(slate_ModuleStub));
+    ms->name = (char*)name;
+    ms->path = (char*)path;
+    return ms;
+}
 
 // ── Memory ────────────────────────────────────────────────────────────────────
 
