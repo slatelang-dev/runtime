@@ -471,19 +471,4 @@ static inline char* bold_yellow(const char* s) { return bold(yellow(s)); }
 static inline char* bold_blue(const char* s)   { return bold(blue(s)); }
 static inline char* bold_red(const char* s)    { return bold(red(s)); }
 
-// ── Forward declarations ──────────────────────────────────────────────────────
-// These are implemented by the compiled Slate core .o files, not here.
-
-void* slate_parse(const char* source);
-void* slate_analyse(void* ast, const char* path);
-void* slate_analyse_bare(void* ast, const char* path, int8_t bare);
-char* slate_render_all(void* errors, void* warnings, const char* source);
-void* load_project_file(void);
-int64_t project_valid(void* project);
-void* load_entry(void* project);
-void* discover_modules(void* ast, char* source_dir, void* seen);
-void* load_modules(void* stubs);
-void* build_registry_from_modules(void* modules);
-char* walk_module(void* ast, void* reg);
-
 #endif // SLATE_RUNTIME_H
