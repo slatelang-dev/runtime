@@ -392,4 +392,24 @@ static inline void* slate_args(void) {
     return _slate_args ? _slate_args : slate_empty_list();
 }
 
+// ── Option/Result ──────────────────────────────────────────────────────────────
+
+static inline void* slate_option_or(void* opt, void* default_val) {
+    return opt ? opt : default_val;
+}
+
+static inline void* slate_str_chars(const char* s) {
+    if (!s) return slate_empty_list();
+    size_t len = strlen(s);
+    void** arr = malloc((len + 1) * sizeof(void*));
+    arr[0] = (void*)len;
+    for (size_t i = 0; i < len; i++) {
+        char* ch = malloc(2);
+        ch[0] = s[i];
+        ch[1] = 0;
+        arr[i + 1] = ch;
+    }
+    return arr;
+}
+
 #endif // SLATE_RUNTIME_H
