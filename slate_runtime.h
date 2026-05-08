@@ -392,25 +392,4 @@ static inline void* slate_args(void) {
     return _slate_args ? _slate_args : slate_empty_list();
 }
 
-// ── Colors ────────────────────────────────────────────────────────────────────
-
-static inline char* red(const char* s)         { return slate_concat(slate_concat("\033[38;2;220;50;50m",  s), "\033[0m"); }
-static inline char* green(const char* s)       { return slate_concat(slate_concat("\033[38;2;50;200;80m",  s), "\033[0m"); }
-static inline char* blue(const char* s)        { return slate_concat(slate_concat("\033[38;2;50;120;220m", s), "\033[0m"); }
-static inline char* yellow(const char* s)      { return slate_concat(slate_concat("\033[38;2;230;200;50m", s), "\033[0m"); }
-static inline char* orange(const char* s)      { return slate_concat(slate_concat("\033[38;2;230;120;30m", s), "\033[0m"); }
-static inline char* purple(const char* s)      { return slate_concat(slate_concat("\033[38;2;150;80;220m", s), "\033[0m"); }
-static inline char* gray(const char* s)        { return slate_concat(slate_concat("\033[38;2;140;140;140m",s), "\033[0m"); }
-static inline char* white(const char* s)       { return slate_concat(slate_concat("\033[38;2;240;240;240m",s), "\033[0m"); }
-static inline char* slate_color(const char* s) { return slate_concat(slate_concat("\033[38;2;112;128;144m",s), "\033[0m"); }
-static inline char* bold(const char* s)        { return slate_concat(slate_concat("\033[1m", s), "\033[0m"); }
-static inline char* dim(const char* s)         { return slate_concat(slate_concat("\033[2m", s), "\033[0m"); }
-static inline char* italic(const char* s)      { return slate_concat(slate_concat("\033[3m", s), "\033[0m"); }
-static inline char* underline(const char* s)   { return slate_concat(slate_concat("\033[4m", s), "\033[0m"); }
-static inline char* bold_slate(const char* s)  { return bold(slate_color(s)); }
-static inline char* bold_green(const char* s)  { return bold(green(s)); }
-static inline char* bold_yellow(const char* s) { return bold(yellow(s)); }
-static inline char* bold_blue(const char* s)   { return bold(blue(s)); }
-static inline char* bold_red(const char* s)    { return bold(red(s)); }
-
 #endif // SLATE_RUNTIME_H
