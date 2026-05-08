@@ -10,64 +10,6 @@
 #include <stdarg.h>
 #include <sys/wait.h>
 
-// ── Structs ───────────────────────────────────────────────────────────────────
-
-typedef struct {
-    int64_t success;
-    char*   message;
-    void*   node;
-    char*   source;
-} slate_ParseResult;
-
-typedef struct {
-    int64_t success;
-    void*   errors;
-    void*   warnings;
-    char*   source;
-} slate_AnalysisResult;
-
-typedef struct {
-    char*   name;
-    char*   path;
-    char*   source;
-    void*   ast;
-    int8_t  success;
-    char*   error;
-} slate_LoadedModule;
-
-typedef struct {
-    char*   name;
-    char*   version;
-    char*   description;
-    char*   entry;
-    char*   bin;
-    int8_t  bare;
-} slate_Project;
-
-typedef struct {
-    char* name;
-    char* path;
-} slate_ModuleStub;
-
-typedef struct {
-    void* fn_returns;
-    void* field_types;
-    void* field_owners;
-    void* field_indices;
-    void* enum_variants;
-    void* struct_names;
-} slate_Registry;
-
-// ── Struct constructors ───────────────────────────────────────────────────────
-// Struct literals in Slate emit as C function calls
-
-static inline void* ModuleStub(const char* name, const char* path) {
-    slate_ModuleStub* ms = malloc(sizeof(slate_ModuleStub));
-    ms->name = (char*)name;
-    ms->path = (char*)path;
-    return ms;
-}
-
 // ── Memory ────────────────────────────────────────────────────────────────────
 
 static inline void* slate_alloc(int64_t size) {
