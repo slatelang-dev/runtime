@@ -412,4 +412,75 @@ static inline void* slate_str_chars(const char* s) {
     return arr;
 }
 
+// ── Int boxing (for table(string, int)) ───────────────────────────────────────
+
+static inline void* slate_box_int(int64_t n) {
+    int64_t* p = malloc(sizeof(int64_t));
+    *p = n;
+    return p;
+}
+
+static inline int64_t slate_unbox_int(void* p) {
+    return p ? *(int64_t*)p : 0;
+}
+
+// ── Minimal TOML parser (for slate.toml) ─────────────────────────────────────
+// Parses section-qualified keys like "project.name", "project.version" etc.
+// Returns a table(string, string).
+
+static inline void* slate_toml_parse(const char* source) {
+    void* table = slate_table_new();
+    if (!source) return table;
+    char* section = "";
+    char* lines = strdup(source);
+    char* line = lines;
+    char* next;
+    while (line && *line) {
+        next = strchr(line, '\n');
+        if (next) { *next = 0; next++; }
+        // Trim
+        char* s = line;
+        while (*s == ' ' || *s == '\t' || *s == '\r') s++;
+        char* e = s + strlen(s);
+        while (e > s && (e[-1] == ' ' || e[-1] == '\t' || e[-1] == '\r')) e--;
+        if (e <= s) { line = next; continue; }
+        *e = 0;
+        // Section header
+        if (*s == '[') {
+            s++;
+            char* bracket = strchr(s, ']');
+            if (bracket) { *bracket = 0; section = s; }
+            line = next;
+            continue;
+        }
+        // Comment
+        if (*s == '#') { line = next; continue; }
+        // key = value
+        char* eq = strchr(s, '=');
+        if (eq) {
+            *eq = 0;
+            char* k = s;
+            while (*k == ' ' || *k == '\t') k++;
+            char* ke = eq - 1;
+            while (ke > k && (*ke == ' ' || *ke == '\t')) ke--;
+            *(ke + 1) = 0;
+            char* v = eq + 1;
+            while (*v == ' ' || *v == '\t' || *v == '"') v++;
+            char* ve = v + strlen(v) - 1;
+            while (ve > v && (*ve == ' ' || *ve == '\t' || *ve == '"')) ve--;
+            *(ve + 1) = 0;
+            char full_key[256];
+            if (*section) {
+                snprintf(full_key, sizeof(full_key), "%s.%s", section, k);
+            } else {
+                snprintf(full_key, sizeof(full_key), "%s", k);
+            }
+            table = slate_table_set(table, strdup(full_key), strdup(v));
+        }
+        line = next;
+    }
+    free(lines);
+    return table;
+}
+
 #endif // SLATE_RUNTIME_H
