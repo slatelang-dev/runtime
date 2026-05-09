@@ -234,7 +234,8 @@ static inline int64_t slate_has(void* table, const char* key) {
 }
 
 static inline void* slate_table_set(void* table, const char* key, void* val) {
-    if (!table || !key) return table;
+    if (!table) table = slate_table_new();
+    if (!key) return table;
     SlateTable* t = table;
     uint64_t idx = _slate_hash_str(key) % (uint64_t)t->cap;
     for (SlateTableEntry* e = t->buckets[idx]; e; e = e->next) {
