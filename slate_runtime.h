@@ -355,6 +355,27 @@ static inline int64_t slate_run_args(int64_t argc, ...) {
     return WEXITSTATUS(status);
 }
 
+// run(list) — Slate emits slate_run_list(list) when run() receives a single list argument
+static inline int64_t slate_run_list(void* list) {
+    if (!list) return -1;
+    int64_t count = slate_len(list);
+    if (count == 0) return -1;
+    char** argv = malloc((size_t)(count + 1) * sizeof(char*));
+    for (int64_t i = 0; i < count; i++) {
+        argv[i] = (char*)slate_get(list, i);
+    }
+    argv[count] = NULL;
+    pid_t pid = fork();
+    if (pid == 0) {
+        execvp(argv[0], argv);
+        _exit(127);
+    }
+    int status = 0;
+    waitpid(pid, &status, 0);
+    free(argv);
+    return WEXITSTATUS(status);
+}
+
 // ── Stdin/Stdout ──────────────────────────────────────────────────────────────
 
 static inline char* slate_read(void) {
