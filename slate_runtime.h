@@ -358,26 +358,22 @@ static inline int64_t slate_run_args(int64_t argc, ...) {
 
 // run(list) — Slate emits slate_run_list(list) when run() receives a single list argument
 static inline int64_t slate_run_list(void* list) {
-    if (!list) { fprintf(stderr, "slate_run_list: list is NULL\n"); return -1; }
+    if (!list) return -1;
     int64_t count = slate_len(list);
-    fprintf(stderr, "slate_run_list: count=%ld\n", (long)count);
-    if (count == 0) { fprintf(stderr, "slate_run_list: count is 0\n"); return -1; }
+    if (count == 0) return -1;
     char** argv = malloc((size_t)(count + 1) * sizeof(char*));
     for (int64_t i = 0; i < count; i++) {
         argv[i] = (char*)slate_get(list, i);
-        fprintf(stderr, "slate_run_list: argv[%ld] = \"%s\"\n", (long)i, argv[i] ? argv[i] : "NULL");
     }
     argv[count] = NULL;
     pid_t pid = fork();
     if (pid == 0) {
         execvp(argv[0], argv);
-        fprintf(stderr, "slate_run_list: execvp failed: %m\n");
         _exit(127);
     }
     int status = 0;
     waitpid(pid, &status, 0);
     free(argv);
-    fprintf(stderr, "slate_run_list: WEXITSTATUS=%d\n", WEXITSTATUS(status));
     return WEXITSTATUS(status);
 }
 
