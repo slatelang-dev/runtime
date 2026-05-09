@@ -8,6 +8,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <stdarg.h>
+#include <ctype.h>
 #include <sys/wait.h>
 
 // ── Memory ────────────────────────────────────────────────────────────────────
@@ -35,6 +36,38 @@ static inline char* slate_concat(const char* a, const char* b) {
 
 static inline int64_t slate_strlen(const char* s) {
     return s ? (int64_t)strlen(s) : 0;
+}
+
+static inline char* slate_str_upper(const char* s) {
+    if (!s) return strdup("");
+    char* r = strdup(s);
+    for (char* p = r; *p; p++) *p = (char)toupper((unsigned char)*p);
+    return r;
+}
+
+static inline char* slate_str_lower(const char* s) {
+    if (!s) return strdup("");
+    char* r = strdup(s);
+    for (char* p = r; *p; p++) *p = (char)tolower((unsigned char)*p);
+    return r;
+}
+
+static inline char* slate_str_reverse(const char* s) {
+    if (!s) return strdup("");
+    size_t len = strlen(s);
+    char* r = malloc(len + 1);
+    for (size_t i = 0; i < len; i++) r[i] = s[len - 1 - i];
+    r[len] = 0;
+    return r;
+}
+
+static inline char* slate_str_repeat(const char* s, int64_t n) {
+    if (!s || n <= 0) return strdup("");
+    size_t sl = strlen(s);
+    char* r = malloc(sl * (size_t)n + 1);
+    for (int64_t i = 0; i < n; i++) memcpy(r + sl * (size_t)i, s, sl);
+    r[sl * (size_t)n] = 0;
+    return r;
 }
 
 static inline char* slate_strdup(const char* s) {
@@ -66,6 +99,23 @@ static inline int64_t slate_str_to_int(const char* s) {
 
 static inline double slate_str_to_float(const char* s) {
     return (s && s[0]) ? atof(s) : 0.0;
+}
+
+static inline int64_t slate_to_int(void* val) {
+    if (!val) return 0;
+    char* s = (char*)val;
+    return (int64_t)atoll(s);
+}
+
+static inline double slate_to_float(void* val) {
+    if (!val) return 0.0;
+    char* s = (char*)val;
+    return atof(s);
+}
+
+static inline char* slate_to_string(void* val) {
+    if (!val) return strdup("");
+    return strdup((char*)val);
 }
 
 static inline int64_t slate_contains(const char* s, const char* sub) {
@@ -187,6 +237,61 @@ static inline void* slate_empty_list(void) {
     return arr;
 }
 
+static inline void* slate_list_first(void* list) {
+    if (!list) return NULL;
+    void** arr = (void**)list;
+    return (int64_t)arr[0] > 0 ? arr[1] : NULL;
+}
+
+static inline void* slate_list_last(void* list) {
+    if (!list) return NULL;
+    void** arr = (void**)list;
+    int64_t count = (int64_t)arr[0];
+    return count > 0 ? arr[count] : NULL;
+}
+
+static inline void* slate_list_remove(void* list, int64_t idx) {
+    if (!list) return slate_empty_list();
+    void** arr = (void**)list;
+    int64_t count = (int64_t)arr[0];
+    if (idx < 0 || idx >= count) return list;
+    void** r = malloc((size_t)count * sizeof(void*));
+    r[0] = (void*)(count - 1);
+    int64_t ri = 1;
+    for (int64_t i = 0; i < count; i++)
+        if (i != idx) r[ri++] = arr[i + 1];
+    return r;
+}
+
+static inline int64_t _slate_strcmp_wrap(const void* a, const void* b) {
+    return strcmp(*(const char**)a, *(const char**)b);
+}
+
+static inline void* slate_list_sort(void* list) {
+    if (!list) return slate_empty_list();
+    void** arr = (void**)list;
+    int64_t count = (int64_t)arr[0];
+    void** r = malloc((size_t)(count + 1) * sizeof(void*));
+    r[0] = arr[0];
+    for (int64_t i = 0; i < count; i++) r[i + 1] = arr[i + 1];
+    qsort(r + 1, (size_t)count, sizeof(void*),
+          (int(*)(const void*, const void*))_slate_strcmp_wrap);
+    return r;
+}
+
+static inline void* slate_list_merge(void* a, void* b) {
+    if (!a) return b ? slate_empty_list() : b;
+    if (!b) return slate_empty_list();
+    void** arr_a = (void**)a;
+    void** arr_b = (void**)b;
+    int64_t ca = (int64_t)arr_a[0], cb = (int64_t)arr_b[0];
+    void** r = malloc((size_t)(ca + cb + 1) * sizeof(void*));
+    r[0] = (void*)(ca + cb);
+    for (int64_t i = 0; i < ca; i++) r[i + 1] = arr_a[i + 1];
+    for (int64_t i = 0; i < cb; i++) r[ca + i + 1] = arr_b[i + 1];
+    return r;
+}
+
 // ── Table (string → void* hash map) ──────────────────────────────────────────
 
 typedef struct SlateTableEntry {
@@ -305,6 +410,21 @@ static inline int64_t slate_file_exists(const char* path) {
     if (!f) return 0;
     fclose(f);
     return 1;
+}
+
+static inline int64_t slate_file_append(const char* path, const char* data) {
+    if (!path || !data) return 0;
+    FILE* f = fopen(path, "a");
+    if (!f) return 0;
+    fputs(data, f);
+    fclose(f);
+    return 1;
+}
+
+static inline void* slate_file_list(const char* path) {
+    // Stub: returns empty list. Directory listing requires <dirent.h>.
+    (void)path;
+    return slate_empty_list();
 }
 
 static inline const char* slate_file(const char* path) {
