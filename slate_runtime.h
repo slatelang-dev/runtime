@@ -457,44 +457,85 @@ static inline int64_t slate_hash(const char* s) {
 }
 
 // run(cmd, arg1, arg2, ...) — Slate emits slate_run_args(count, cmd, a, b, ...)
-static inline int64_t slate_run_args(int64_t argc, ...) {
-    // Build argv from varargs
+static inline char* slate_run_args(int64_t argc, ...) {
     char** argv = malloc((size_t)(argc + 1) * sizeof(char*));
     va_list ap;
     va_start(ap, argc);
     for (int64_t i = 0; i < argc; i++) argv[i] = va_arg(ap, char*);
     va_end(ap);
     argv[argc] = NULL;
+    int pipefd[2];
+    if (pipe(pipefd) < 0) { free(argv); return strdup(""); }
     pid_t pid = fork();
     if (pid == 0) {
+        close(pipefd[0]);
+        dup2(pipefd[1], STDOUT_FILENO);
+        close(pipefd[1]);
         execvp(argv[0], argv);
         _exit(127);
     }
+    close(pipefd[1]);
     int status = 0;
     waitpid(pid, &status, 0);
     free(argv);
-    return WEXITSTATUS(status);
+    size_t cap = 4096;
+    size_t len = 0;
+    char* out = malloc(cap);
+    char buf[4096];
+    ssize_t n;
+    while ((n = read(pipefd[0], buf, sizeof(buf))) > 0) {
+        if (len + (size_t)n >= cap) {
+            cap *= 2;
+            out = realloc(out, cap);
+        }
+        memcpy(out + len, buf, (size_t)n);
+        len += (size_t)n;
+    }
+    close(pipefd[0]);
+    out[len] = 0;
+    return out;
 }
 
 // run(list) — Slate emits slate_run_list(list) when run() receives a single list argument
-static inline int64_t slate_run_list(void* list) {
-    if (!list) return -1;
+static inline char* slate_run_list(void* list) {
+    if (!list) return strdup("");
     int64_t count = slate_len(list);
-    if (count == 0) return -1;
+    if (count == 0) return strdup("");
     char** argv = malloc((size_t)(count + 1) * sizeof(char*));
     for (int64_t i = 0; i < count; i++) {
         argv[i] = (char*)slate_get(list, i);
     }
     argv[count] = NULL;
+    int pipefd[2];
+    if (pipe(pipefd) < 0) { free(argv); return strdup(""); }
     pid_t pid = fork();
     if (pid == 0) {
+        close(pipefd[0]);
+        dup2(pipefd[1], STDOUT_FILENO);
+        close(pipefd[1]);
         execvp(argv[0], argv);
         _exit(127);
     }
+    close(pipefd[1]);
     int status = 0;
     waitpid(pid, &status, 0);
     free(argv);
-    return WEXITSTATUS(status);
+    size_t cap = 4096;
+    size_t len = 0;
+    char* out = malloc(cap);
+    char buf[4096];
+    ssize_t n;
+    while ((n = read(pipefd[0], buf, sizeof(buf))) > 0) {
+        if (len + (size_t)n >= cap) {
+            cap *= 2;
+            out = realloc(out, cap);
+        }
+        memcpy(out + len, buf, (size_t)n);
+        len += (size_t)n;
+    }
+    close(pipefd[0]);
+    out[len] = 0;
+    return out;
 }
 
 // ── Stdin/Stdout ──────────────────────────────────────────────────────────────
