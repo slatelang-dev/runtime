@@ -538,6 +538,22 @@ static inline char* slate_run_list(void* list) {
     return out;
 }
 
+// exec(list) — replaces current process with target binary, streams directly to terminal
+static inline void slate_exec(void* list) {
+    if (!list) return;
+    int64_t count = slate_len(list);
+    if (count == 0) return;
+    char** argv = malloc((size_t)(count + 1) * sizeof(char*));
+    for (int64_t i = 0; i < count; i++) {
+        argv[i] = (char*)slate_get(list, i);
+    }
+    argv[count] = NULL;
+    execvp(argv[0], argv);
+    perror("exec failed");
+    free(argv);
+    exit(1);
+}
+
 // ── Stdin/Stdout ──────────────────────────────────────────────────────────────
 
 static inline char* slate_read(void) {
