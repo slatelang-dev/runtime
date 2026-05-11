@@ -177,10 +177,11 @@ static inline char* slate_replace(const char* s, const char* old, const char* re
 }
 
 static inline void* slate_split(const char* s, const char* delim) {
-    // Returns a void** tagged list: [int64_t count, char* item0, char* item1, ...]
+    // Returns a void** tagged list: [count, capacity, item0, item1, ...]
     if (!s || !delim) {
         void** r = malloc(2 * sizeof(void*));
         r[0] = (void*)(int64_t)0;
+        r[1] = (void*)(int64_t)0;
         return r;
     }
     size_t dlen = strlen(delim);
@@ -188,10 +189,11 @@ static inline void* slate_split(const char* s, const char* delim) {
     size_t count = 1;
     const char* p = s;
     while ((p = strstr(p, delim))) { count++; p += dlen; }
-    void** arr = malloc((count + 1) * sizeof(void*));
+    void** arr = malloc((count + 2) * sizeof(void*));
     arr[0] = (void*)count;
+    arr[1] = (void*)count;
     p = s;
-    size_t idx = 1;
+    size_t idx = 2;
     const char* found;
     while ((found = strstr(p, delim))) {
         size_t len = (size_t)(found - p);
@@ -206,7 +208,7 @@ static inline void* slate_split(const char* s, const char* delim) {
 }
 
 // ── Collections ───────────────────────────────────────────────────────────────
-// Tagged void** layout: arr[0] = (void*)count, arr[1..count] = items
+// Tagged void** layout: arr[0] = (void*)count, arr[1] = (void*)capacity, arr[2..] = items
 
 static inline int64_t slate_len(void* list) {
     if (!list) return 0;
@@ -219,35 +221,51 @@ static inline void* slate_get(void* list, int64_t idx) {
     void** arr = (void**)list;
     int64_t count = (int64_t)arr[0];
     if (idx < 0 || idx >= count) return NULL;
-    return arr[idx + 1];
+    return arr[idx + 2];
 }
 
 static inline void* slate_add(void* list, void* val) {
-    int64_t count = list ? (int64_t)((void**)list)[0] : 0;
-    void** arr = malloc((size_t)(count + 2) * sizeof(void*));
-    arr[0] = (void*)(count + 1);
-    if (list) memcpy(arr + 1, (void**)list + 1, (size_t)count * sizeof(void*));
-    arr[count + 1] = val;
-    return arr;
+    if (!list) {
+        void** arr = malloc(3 * sizeof(void*));
+        arr[0] = (void*)(int64_t)1;
+        arr[1] = (void*)(int64_t)4;
+        arr[2] = val;
+        return arr;
+    }
+    void** arr = (void**)list;
+    int64_t count = (int64_t)arr[0];
+    int64_t cap   = (int64_t)arr[1];
+    if (count < cap) {
+        arr[count + 2] = val;
+        arr[0] = (void*)(count + 1);
+        return arr;
+    }
+    int64_t new_cap = cap < 4 ? 4 : cap * 2;
+    void** new_arr = realloc(arr, (size_t)(new_cap + 2) * sizeof(void*));
+    new_arr[0] = (void*)(count + 1);
+    new_arr[1] = (void*)new_cap;
+    new_arr[count + 2] = val;
+    return new_arr;
 }
 
 static inline void* slate_empty_list(void) {
-    void** arr = malloc(sizeof(void*));
+    void** arr = malloc(2 * sizeof(void*));
     arr[0] = (void*)(int64_t)0;
+    arr[1] = (void*)(int64_t)0;
     return arr;
 }
 
 static inline void* slate_list_first(void* list) {
     if (!list) return NULL;
     void** arr = (void**)list;
-    return (int64_t)arr[0] > 0 ? arr[1] : NULL;
+    return (int64_t)arr[0] > 0 ? arr[2] : NULL;
 }
 
 static inline void* slate_list_last(void* list) {
     if (!list) return NULL;
     void** arr = (void**)list;
     int64_t count = (int64_t)arr[0];
-    return count > 0 ? arr[count] : NULL;
+    return count > 0 ? arr[count + 1] : NULL;
 }
 
 static inline void* slate_list_remove(void* list, int64_t idx) {
@@ -255,11 +273,12 @@ static inline void* slate_list_remove(void* list, int64_t idx) {
     void** arr = (void**)list;
     int64_t count = (int64_t)arr[0];
     if (idx < 0 || idx >= count) return list;
-    void** r = malloc((size_t)count * sizeof(void*));
+    void** r = malloc((size_t)(count + 1) * sizeof(void*));
     r[0] = (void*)(count - 1);
-    int64_t ri = 1;
+    r[1] = (void*)(count - 1);
+    int64_t ri = 2;
     for (int64_t i = 0; i < count; i++)
-        if (i != idx) r[ri++] = arr[i + 1];
+        if (i != idx) r[ri++] = arr[i + 2];
     return r;
 }
 
@@ -271,10 +290,12 @@ static inline void* slate_list_sort(void* list) {
     if (!list) return slate_empty_list();
     void** arr = (void**)list;
     int64_t count = (int64_t)arr[0];
-    void** r = malloc((size_t)(count + 1) * sizeof(void*));
+    int64_t cap   = (int64_t)arr[1];
+    void** r = malloc((size_t)(count + 2) * sizeof(void*));
     r[0] = arr[0];
-    for (int64_t i = 0; i < count; i++) r[i + 1] = arr[i + 1];
-    qsort(r + 1, (size_t)count, sizeof(void*),
+    r[1] = (void*)cap;
+    for (int64_t i = 0; i < count; i++) r[i + 2] = arr[i + 2];
+    qsort(r + 2, (size_t)count, sizeof(void*),
           (int(*)(const void*, const void*))_slate_strcmp_wrap);
     return r;
 }
@@ -285,10 +306,11 @@ static inline void* slate_list_merge(void* a, void* b) {
     void** arr_a = (void**)a;
     void** arr_b = (void**)b;
     int64_t ca = (int64_t)arr_a[0], cb = (int64_t)arr_b[0];
-    void** r = malloc((size_t)(ca + cb + 1) * sizeof(void*));
+    void** r = malloc((size_t)(ca + cb + 2) * sizeof(void*));
     r[0] = (void*)(ca + cb);
-    for (int64_t i = 0; i < ca; i++) r[i + 1] = arr_a[i + 1];
-    for (int64_t i = 0; i < cb; i++) r[ca + i + 1] = arr_b[i + 1];
+    r[1] = (void*)(ca + cb);
+    for (int64_t i = 0; i < ca; i++) r[i + 2] = arr_a[i + 2];
+    for (int64_t i = 0; i < cb; i++) r[ca + i + 2] = arr_b[i + 2];
     return r;
 }
 
@@ -358,9 +380,10 @@ static inline void* slate_table_set(void* table, const char* key, void* val) {
 static inline void* slate_keys(void* table) {
     if (!table) return slate_empty_list();
     SlateTable* t = table;
-    void** arr = malloc((size_t)(t->count + 1) * sizeof(void*));
+    void** arr = malloc((size_t)(t->count + 2) * sizeof(void*));
     arr[0] = (void*)t->count;
-    int64_t i = 1;
+    arr[1] = (void*)t->count;
+    int64_t i = 2;
     for (int64_t b = 0; b < t->cap; b++)
         for (SlateTableEntry* e = t->buckets[b]; e; e = e->next)
             arr[i++] = e->key;
@@ -370,9 +393,10 @@ static inline void* slate_keys(void* table) {
 static inline void* slate_values(void* table) {
     if (!table) return slate_empty_list();
     SlateTable* t = table;
-    void** arr = malloc((size_t)(t->count + 1) * sizeof(void*));
+    void** arr = malloc((size_t)(t->count + 2) * sizeof(void*));
     arr[0] = (void*)t->count;
-    int64_t i = 1;
+    arr[1] = (void*)t->count;
+    int64_t i = 2;
     for (int64_t b = 0; b < t->cap; b++)
         for (SlateTableEntry* e = t->buckets[b]; e; e = e->next)
             arr[i++] = e->val;
@@ -582,9 +606,10 @@ static int64_t _slate_args_len = 0;
 
 static inline void slate_init_args(int argc, char** argv) {
     _slate_args_len = argc > 1 ? argc - 1 : 0;
-    _slate_args = malloc((size_t)(_slate_args_len + 1) * sizeof(void*));
+    _slate_args = malloc((size_t)(_slate_args_len + 2) * sizeof(void*));
     _slate_args[0] = (void*)_slate_args_len;
-    for (int64_t i = 0; i < _slate_args_len; i++) _slate_args[i + 1] = argv[i + 1];
+    _slate_args[1] = (void*)_slate_args_len;
+    for (int64_t i = 0; i < _slate_args_len; i++) _slate_args[i + 2] = argv[i + 1];
 }
 
 static inline void* slate_args(void) {
@@ -600,13 +625,14 @@ static inline void* slate_option_or(void* opt, void* default_val) {
 static inline void* slate_str_chars(const char* s) {
     if (!s) return slate_empty_list();
     size_t len = strlen(s);
-    void** arr = malloc((len + 1) * sizeof(void*));
+    void** arr = malloc((len + 2) * sizeof(void*));
     arr[0] = (void*)len;
+    arr[1] = (void*)len;
     for (size_t i = 0; i < len; i++) {
         char* ch = malloc(2);
         ch[0] = s[i];
         ch[1] = 0;
-        arr[i + 1] = ch;
+        arr[i + 2] = ch;
     }
     return arr;
 }
