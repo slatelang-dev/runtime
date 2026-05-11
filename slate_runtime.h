@@ -227,7 +227,7 @@ static inline void* slate_get(void* list, int64_t idx) {
 
 static inline void* slate_add(void* list, void* val) {
     if (!list) {
-        void** arr = malloc(3 * sizeof(void*));
+        void** arr = malloc(6 * sizeof(void*));
         arr[0] = (void*)(int64_t)1;
         arr[1] = (void*)(int64_t)4;
         arr[2] = val;
@@ -250,9 +250,9 @@ static inline void* slate_add(void* list, void* val) {
 }
 
 static inline void* slate_empty_list(void) {
-    void** arr = malloc(2 * sizeof(void*));
+    void** arr = malloc(6 * sizeof(void*));
     arr[0] = (void*)(int64_t)0;
-    arr[1] = (void*)(int64_t)0;
+    arr[1] = (void*)(int64_t)4;
     return arr;
 }
 
