@@ -10,6 +10,7 @@
 #include <stdarg.h>
 #include <ctype.h>
 #include <sys/wait.h>
+#include <dirent.h>
 
 // ── Memory ────────────────────────────────────────────────────────────────────
 
@@ -446,9 +447,18 @@ static inline int64_t slate_file_append(const char* path, const char* data) {
 }
 
 static inline void* slate_file_list(const char* path) {
-    // Stub: returns empty list. Directory listing requires <dirent.h>.
-    (void)path;
-    return slate_empty_list();
+    if (!path) return slate_empty_list();
+    DIR* dir = opendir(path);
+    if (!dir) return slate_empty_list();
+    void* list = slate_empty_list();
+    struct dirent* entry;
+    while ((entry = readdir(dir))) {
+        if (strcmp(entry->d_name, ".") == 0) continue;
+        if (strcmp(entry->d_name, "..") == 0) continue;
+        list = slate_add(list, strdup(entry->d_name));
+    }
+    closedir(dir);
+    return list;
 }
 
 static inline const char* slate_file(const char* path) {
