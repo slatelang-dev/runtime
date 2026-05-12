@@ -242,7 +242,9 @@ static inline void* slate_add(void* list, void* val) {
         return arr;
     }
     int64_t new_cap = cap < 4 ? 4 : cap * 2;
-    void** new_arr = realloc(arr, (size_t)(new_cap + 2) * sizeof(void*));
+    void** tmp = realloc(arr, (size_t)(new_cap + 2) * sizeof(void*));
+    if (!tmp) return arr;
+    void** new_arr = tmp;
     new_arr[0] = (void*)(count + 1);
     new_arr[1] = (void*)new_cap;
     new_arr[count + 2] = val;
@@ -283,7 +285,7 @@ static inline void* slate_list_remove(void* list, int64_t idx) {
     return r;
 }
 
-static inline int64_t _slate_strcmp_wrap(const void* a, const void* b) {
+static inline int _slate_strcmp_wrap(const void* a, const void* b) {
     return strcmp(*(const char**)a, *(const char**)b);
 }
 
@@ -410,10 +412,12 @@ static inline char* slate_file_read(const char* path) {
     if (!path) return strdup("");
     FILE* f = fopen(path, "r");
     if (!f) return strdup("");
-    fseek(f, 0, SEEK_END);
+    if (fseek(f, 0, SEEK_END) != 0) { fclose(f); return strdup(""); }
     long len = ftell(f);
+    if (len < 0) { fclose(f); return strdup(""); }
     fseek(f, 0, SEEK_SET);
     char* buf = malloc((size_t)len + 1);
+    if (!buf) { fclose(f); return strdup(""); }
     fread(buf, 1, (size_t)len, f);
     buf[len] = 0;
     fclose(f);
@@ -520,7 +524,9 @@ static inline char* slate_run_args(int64_t argc, ...) {
     while ((n = read(pipefd[0], buf, sizeof(buf))) > 0) {
         if (len + (size_t)n >= cap) {
             cap *= 2;
-            out = realloc(out, cap);
+            char* tmp = realloc(out, cap);
+            if (!tmp) { free(out); close(pipefd[0]); return strdup(""); }
+            out = tmp;
         }
         memcpy(out + len, buf, (size_t)n);
         len += (size_t)n;
@@ -562,7 +568,9 @@ static inline char* slate_run_list(void* list) {
     while ((n = read(pipefd[0], buf, sizeof(buf))) > 0) {
         if (len + (size_t)n >= cap) {
             cap *= 2;
-            out = realloc(out, cap);
+            char* tmp = realloc(out, cap);
+            if (!tmp) { free(out); close(pipefd[0]); return strdup(""); }
+            out = tmp;
         }
         memcpy(out + len, buf, (size_t)n);
         len += (size_t)n;
