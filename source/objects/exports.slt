@@ -1,6 +1,6 @@
 module objects;
 
 use header;
-use str_obj;
+use string_obj;
 use list_obj;
 use table_obj;
