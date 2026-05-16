@@ -645,6 +645,16 @@ static inline double slate_str_to_float(const char* s) {
     return (s && s[0]) ? atof(s) : 0.0;
 }
 
+// Old code gen emits slate_write for the write() global function.
+static inline void slate_write(const char* s) {
+    if (s) { fputs(s, stdout); fflush(stdout); }
+}
+
+// Old code gen emits slate_option_or for .or() on option types.
+static inline void* slate_option_or(void* opt, void* default_val) {
+    return opt ? opt : default_val;
+}
+
 // Old code gen for table(string, int).get/set emits box/unbox.
 static inline void* slate_box_int(int64_t n) {
     int64_t* p = malloc(sizeof(int64_t));
