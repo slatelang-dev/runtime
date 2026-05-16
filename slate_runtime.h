@@ -631,6 +631,31 @@ static inline void* slate_str_chars(const char* s) {
     return arr;
 }
 
+// ── Deprecated bootstrap aliases ─────────────────────────────────────────────
+// These exist ONLY so the old self-hosted compiler binary can compile the new
+// codegen sources. The old binary emits these function names. Once the compiler
+// is rebuilt with the new codegen, delete these — the codegen emits atoll/atof
+// and (void*)/(int64_t) casts directly.
+
+static inline int64_t slate_str_to_int(const char* s) {
+    return (s && s[0]) ? (int64_t)atoll(s) : 0;
+}
+
+static inline double slate_str_to_float(const char* s) {
+    return (s && s[0]) ? atof(s) : 0.0;
+}
+
+// Old code gen for table(string, int).get/set emits box/unbox.
+static inline void* slate_box_int(int64_t n) {
+    int64_t* p = malloc(sizeof(int64_t));
+    *p = n;
+    return p;
+}
+
+static inline int64_t slate_unbox_int(void* p) {
+    return p ? *(int64_t*)p : 0;
+}
+
 #include "slate_parsers.h"
 
 #endif // SLATE_RUNTIME_H
