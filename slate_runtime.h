@@ -12,6 +12,32 @@
 #include <sys/wait.h>
 #include <dirent.h>
 
+// ── StringObj compat ──────────────────────────────────────────────────────────
+// Installed slate binaries (pre-char*-revert) emit StringObj* in struct fields.
+// Keep this typedef so their generated C can compile against the current header.
+
+typedef struct {
+    int8_t marked;
+    int8_t tag;
+    int64_t length;
+    int64_t capacity;
+    char* data;
+} StringObj;
+
+static inline StringObj* slate_cstr(const char* s) {
+    if (!s) s = "";
+    size_t len = strlen(s);
+    StringObj* obj = malloc(sizeof(StringObj));
+    obj->marked = 0;
+    obj->tag = 0;
+    obj->length = (int64_t)len;
+    obj->capacity = (int64_t)len;
+    obj->data = strdup(s);
+    return obj;
+}
+
+#define slate_static_string(s) slate_cstr(s)
+
 // ── Memory ────────────────────────────────────────────────────────────────────
 
 static inline void* slate_alloc(int64_t size) {
